@@ -1,3 +1,4 @@
+import { Price } from "@/components/layout/currency";
 import { ChevronRight, Flame, Sparkles, TrendingUp, BarChart3 } from "lucide-react";
 import Link from "next/link";
 import { Avatar } from "@/components/common";
@@ -21,12 +22,12 @@ export function MarketOverview({ boards, more, traded }: { boards: OverviewBoard
       {boards.map((b) => {
         const Icon = ICON[b.key];
         return (
-          <section key={b.key} className="min-w-0 rounded-xl border border-border bg-surface p-4 shadow-sm">
+          <section key={b.key} className="min-w-0 rounded-lg border border-border bg-surface p-4">
             <div className="mb-2 flex items-center justify-between">
               <h3 className="flex items-center gap-1.5 text-[14px] font-semibold">
                 <Icon className="size-4 text-primary-text" strokeWidth={1.75} /> {b.title}
               </h3>
-              <Link href={b.href} className="inline-flex items-center text-[12px] font-medium text-tertiary transition-colors hover:text-text">
+              <Link prefetch={false} href={b.href} className="inline-flex items-center text-[12px] font-medium text-tertiary transition-colors hover:text-text">
                 {more} <ChevronRight className="size-3.5" />
               </Link>
             </div>
@@ -34,13 +35,14 @@ export function MarketOverview({ boards, more, traded }: { boards: OverviewBoard
               {b.rows.map((r, i) => (
                 <li key={r.id}>
                   <Link
+                    prefetch={false}
                     href={`/strategies/${r.slug}`}
                     className="-mx-2 flex h-11 items-center gap-2.5 rounded-md px-2 transition-colors hover:bg-bg-subtle"
                   >
                     <span className="tnum w-3 shrink-0 font-mono text-[11px] text-tertiary">{i + 1}</span>
                     <Avatar name={r.traderHandle} size={22} />
                     <span className="min-w-0 flex-1 truncate text-[13px] font-semibold">{r.name}</span>
-                    <span className="tnum shrink-0 text-right text-[13px]">{fmtNumber(r.price)}</span>
+                    <Price value={r.price} className="shrink-0 text-right font-mono text-[13px]" />
                     {b.key === "volume" ? (
                       <span className="tnum w-[68px] shrink-0 text-right text-[12px] text-secondary" title={traded}>
                         {r.seatsTraded30d}

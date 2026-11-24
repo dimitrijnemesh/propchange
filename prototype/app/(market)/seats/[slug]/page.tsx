@@ -40,11 +40,11 @@ export default async function SeatTokenPage({ params }: { params: Promise<{ slug
   return (
     <div className="container-market pt-5 md:pt-6">
       <Link href="/seats" className="inline-flex items-center gap-1 text-[13px] font-medium text-tertiary hover:text-text">
-        <ArrowLeft className="size-3.5" /> Seat Market
+        <ArrowLeft className="size-3.5" /> Seats
       </Link>
 
       {/* ticker header */}
-      <header className="mt-3 rounded-xl border border-border bg-surface p-4 shadow-sm md:p-5">
+      <header className="mt-3 rounded-[22px] border border-border bg-surface p-4 shadow-sm md:p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
             <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary-soft text-primary-soft-text">
@@ -60,7 +60,7 @@ export default async function SeatTokenPage({ params }: { params: Promise<{ slug
                 <span className="rounded-md bg-bg-muted px-2 py-0.5 text-[11.5px] font-medium text-secondary">USDC</span>
                 <SolanaBadge label="Settled on Solana" variant="chip" />
               </div>
-              <Link href={`/strategies/${t.slug}`} className="mt-0.5 flex items-center gap-1.5 text-[13px] text-secondary hover:text-text">
+              <Link prefetch={false} href={`/strategies/${t.slug}`} className="mt-0.5 flex items-center gap-1.5 text-[13px] text-secondary hover:text-text">
                 <Avatar name={t.traderHandle} size={18} /> {t.name} · {t.traderHandle}
               </Link>
             </div>

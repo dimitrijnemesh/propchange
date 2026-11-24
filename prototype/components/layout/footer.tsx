@@ -36,11 +36,12 @@ export async function Footer() {
         ))}
       </div>
       <div className="border-t border-border">
-        <div className="container-market flex flex-col gap-4 py-6 md:flex-row md:items-center">
+        <div className="container-market flex flex-col gap-4 pb-14 pt-6 md:flex-row md:items-center">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
             <LogoMark size={16} />
             <span className="text-caption text-secondary">© 2026 PropChange</span>
-            <SolanaBadge label="Built on Solana" variant="chip" />
+            <span aria-hidden className="h-3 w-px bg-border-strong" />
+            <SolanaBadge label="Built on Solana" />
             <ThemeToggle />
             <LanguageSwitcher full />
           </div>

@@ -2,14 +2,15 @@ import type { Metadata } from "next";
 import { Gift, Percent, UserPlus } from "lucide-react";
 import { ReferralLink } from "@/components/app/referral-link";
 import { PageHeader } from "@/components/layout/page-header";
+import { daysAgoLabel } from "@/mock/nav";
 
 export const metadata: Metadata = { title: "Referral" };
 
 const referrals = [
-  { user: "kate.v", joined: "Sep 30, 2026", status: "Seat bought", earned: 12.4 },
-  { user: "omar_fx", joined: "Sep 22, 2026", status: "Seat bought", earned: 28.9 },
-  { user: "lena.m", joined: "Sep 14, 2026", status: "Signed up", earned: 0 },
-  { user: "dmytro.k", joined: "Aug 29, 2026", status: "Seat bought", earned: 41.2 },
+  { user: "kate.v", joined: daysAgoLabel(7, true), status: "Seat bought", earned: 12.4 },
+  { user: "omar_fx", joined: daysAgoLabel(15, true), status: "Seat bought", earned: 28.9 },
+  { user: "lena.m", joined: daysAgoLabel(23, true), status: "Signed up", earned: 0 },
+  { user: "dmytro.k", joined: daysAgoLabel(39, true), status: "Seat bought", earned: 41.2 },
 ];
 
 export default function ReferralPage() {
@@ -36,7 +37,7 @@ export default function ReferralPage() {
               </div>
             ))}
           </dl>
-          <section className="rounded-xl border border-border bg-surface shadow-sm">
+          <section className="rounded-[22px] border border-border bg-surface">
             <h2 className="border-b border-border px-5 py-3 font-semibold">Your referrals</h2>
             <div className="scroll-thin overflow-x-auto">
               <table className="w-full min-w-[520px] text-sm">
@@ -63,7 +64,7 @@ export default function ReferralPage() {
           </section>
         </div>
         <aside className="space-y-6">
-          <section className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+          <section className="rounded-[22px] border border-border bg-surface p-5 shadow-sm">
             <h2 className="mb-3 font-semibold">Invite friends</h2>
             <ReferralLink code="SAMR-7XK2" />
           </section>

@@ -1,14 +1,13 @@
 "use client";
+import { Price } from "@/components/layout/currency";
 import { ArrowDown, ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { AreaSpark, ChangePill } from "@/components/common/area-spark";
 import { Avatar, Delta, Sparkline } from "@/components/common";
 import { Pills } from "@/components/ui/tabs";
-import { fmtNumber } from "@/lib/format";
 import type { SeatRow } from "@/lib/mock-api";
 import { cn } from "@/lib/utils";
-import { ComplianceBadge, StateBadge } from "./badges";
-import { SeatMeter } from "./seat-meter";
 
 type Filter = "all" | "crypto" | "forex" | "stocks" | "futures" | "free" | "waitlist";
 type Sort = "volume" | "price" | "change" | "occupancy" | "waitlist";
@@ -72,81 +71,73 @@ export function SeatMarketTable({ rows }: { rows: SeatRow[] }) {
           { value: "waitlist", label: "Waitlist" },
         ]}
       />
-      <div className="scroll-thin overflow-x-auto rounded-lg border border-border bg-surface shadow-sm">
-        <table className="w-full min-w-[980px] text-sm">
-          <thead className="bg-bg-subtle text-caption text-secondary">
-            <tr>
-              <th className="sticky left-0 z-[1] bg-bg-subtle px-4 py-2.5 text-left font-medium">Strategy</th>
-              <th className="px-4 py-2.5 text-right font-medium">
-                <div className="flex justify-end">{head("price", "Market price")}</div>
+      <div className="scroll-thin overflow-x-auto rounded-[22px] border border-border bg-surface">
+        <table className="w-full min-w-[760px] text-[14px]">
+          <thead className="text-[12.5px] text-tertiary">
+            <tr className="border-b border-border">
+              <th className="sticky left-0 z-[1] bg-surface px-5 py-3 text-left font-medium">Strategy</th>
+              <th className="px-4 py-3 text-right font-medium">
+                <div className="flex justify-end">{head("price", "Price")}</div>
               </th>
-              <th className="px-4 py-2.5 text-right font-medium">
+              <th className="px-4 py-3 text-right font-medium">
                 <div className="flex justify-end">{head("change", "7d")}</div>
               </th>
-              <th className="px-4 py-2.5 text-right font-medium">
-                <div className="flex justify-end">{head("occupancy", "Occupancy")}</div>
+              <th className="px-4 py-3 text-right font-medium">
+                <div className="flex justify-end">{head("occupancy", "Seats")}</div>
               </th>
-              <th className="px-4 py-2.5 text-right font-medium">
-                <div className="flex justify-end">{head("waitlist", "Waitlist")}</div>
+              <th className="px-4 py-3 text-right font-medium">30d</th>
+              <th className="px-5 py-3">
+                <span className="sr-only">Action</span>
               </th>
-              <th className="px-4 py-2.5 text-right font-medium">Compliance</th>
-              <th className="px-4 py-2.5 text-right font-medium">
-                <div className="flex justify-end">{head("volume", "Seats traded 30d")}</div>
-              </th>
-              <th className="px-4 py-2.5 text-right font-medium">Price 30d</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
-            {shown.map((s) => (
-              <tr
-                key={s.id}
-                tabIndex={0}
-                role="link"
-                aria-label={`${s.name} — trade ${s.symbol} Seats`}
-                onClick={() => router.push(`/seats/${s.slug}`)}
-                onKeyDown={(e) => e.key === "Enter" && router.push(`/seats/${s.slug}`)}
-                className="group h-12 cursor-pointer transition-colors hover:bg-bg-muted"
-              >
-                <td className="sticky left-0 z-[1] bg-surface px-4 py-2 group-hover:bg-bg-muted">
-                  <div className="flex items-center gap-3">
-                    <Avatar name={s.traderHandle} size={28} />
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 font-semibold">
-                        <span className="truncate">{s.name}</span> {s.state !== "active" ? <StateBadge state={s.state} /> : null}
-                      </div>
-                      <div className="text-caption text-tertiary">
-                        <span className="font-mono font-semibold text-secondary">{s.symbol}</span> · {s.traderHandle} · {s.venue}
+          <tbody>
+            {shown.map((s) => {
+              const free = Math.max(0, s.seatsTotal - s.seatsTaken);
+              return (
+                <tr
+                  key={s.id}
+                  tabIndex={0}
+                  role="link"
+                  aria-label={`${s.name} — trade ${s.symbol} Seats`}
+                  onClick={() => router.push(`/seats/${s.slug}`)}
+                  onKeyDown={(e) => e.key === "Enter" && router.push(`/seats/${s.slug}`)}
+                  className="group h-[72px] cursor-pointer transition-colors hover:bg-bg-subtle"
+                >
+                  <td className="sticky left-0 z-[1] bg-surface px-5 group-hover:bg-bg-subtle">
+                    <div className="flex items-center gap-3">
+                      <Avatar name={s.traderHandle} size={38} />
+                      <div className="min-w-0">
+                        <div className="truncate font-semibold">
+                          {s.name}
+                          {s.state === "paused" ? <span className="ml-2 text-[12px] font-medium text-warning">Paused</span> : null}
+                        </div>
+                        <div className="text-[12.5px] text-tertiary">{s.traderHandle}</div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td className="tnum px-4 text-right">
-                  <div className="font-semibold">{fmtNumber(s.marketPrice)} USDC</div>
-                  <div className={cn("text-[11.5px]", s.premium >= 0 ? "text-up" : "text-down")}>
-                    {s.premium >= 0 ? "+" : ""}
-                    {(s.premium * 100).toFixed(1)}% vs curve {fmtNumber(s.price)}
-                  </div>
-                </td>
-                <td className="px-4 text-right font-semibold">
-                  <Delta value={s.seatPrice7dChange} arrow />
-                </td>
-                <td className="px-4">
-                  <div className="ml-auto w-[110px]">
-                    <SeatMeter size="sm" taken={s.seatsTaken} total={s.seatsTotal} />
-                  </div>
-                </td>
-                <td className="tnum px-4 text-right">{s.waitlist || "—"}</td>
-                <td className="px-4 text-right">
-                  <ComplianceBadge strategy={s} short />
-                </td>
-                <td className="tnum px-4 text-right">{s.seatsTraded30d}</td>
-                <td className="px-4">
-                  <div className="flex justify-end">
-                    <Sparkline data={s.priceHistory} tone={s.seatPrice7dChange >= 0 ? "up" : "down"} />
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  </td>
+                  <td className="tnum px-4 text-right">
+                    <Price value={s.marketPrice} className="font-mono font-semibold" />
+                  </td>
+                  <td className="px-4 text-right">
+                    <ChangePill v={s.seatPrice7dChange} />
+                  </td>
+                  <td className="tnum px-4 text-right">
+                    {free > 0 ? <span className="text-secondary">{free} free</span> : <span className="text-tertiary">Full</span>}
+                  </td>
+                  <td className="px-4">
+                    <div className="flex justify-end">
+                      <AreaSpark data={s.priceHistory} up={s.seatPrice7dChange >= 0} id={`smt-${s.id}`} className="h-9 w-24" />
+                    </div>
+                  </td>
+                  <td className="px-5 text-right">
+                    <span className="inline-flex h-9 items-center rounded-full bg-primary px-5 text-[13px] font-semibold text-on-primary transition-colors group-hover:bg-primary-hover">
+                      Trade
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

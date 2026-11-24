@@ -62,7 +62,7 @@ function Result({
   tone?: "up" | "down" | "warning";
 }) {
   return (
-    <div className="min-w-0 rounded-lg border border-border bg-surface p-4">
+    <div className="min-w-0 rounded-[22px] border border-border bg-surface p-4">
       <div className="flex items-center gap-1.5 text-caption text-secondary">
         <span className="truncate">{label}</span>
         <InfoTip content={info} label={`About ${label}`} />
@@ -137,7 +137,7 @@ export function MonteCarlo({
       </div>
 
       {/* Controls */}
-      <section className="rounded-lg border border-border bg-surface p-5 shadow-sm">
+      <section className="rounded-[22px] border border-border bg-surface p-5 shadow-sm">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <Label>Your risk profile</Label>
@@ -244,7 +244,7 @@ export function MonteCarlo({
 
         <Insights s={s} maxLoss={maxLoss} dailyLoss={dailyLoss} sizeScale={sizeScale} />
 
-        <section className="rounded-lg border border-border bg-surface p-5 shadow-sm">
+        <section className="rounded-[22px] border border-border bg-surface p-5 shadow-sm">
           <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
             <div>
               <h3 className="text-h3">Simulated equity paths</h3>
@@ -314,7 +314,7 @@ export function MonteCarlo({
         </section>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <section className="min-w-0 rounded-lg border border-border bg-surface p-5 shadow-sm">
+          <section className="min-w-0 rounded-[22px] border border-border bg-surface p-5 shadow-sm">
             <h3 className="text-h3">Distribution of final returns</h3>
             <p className="mb-4 text-secondary">Number of futures ending in each return range</p>
             <div style={{ height: 230 }}>
@@ -339,7 +339,7 @@ export function MonteCarlo({
               </ResponsiveContainer>
             </div>
           </section>
-          <section className="min-w-0 rounded-lg border border-border bg-surface p-5 shadow-sm">
+          <section className="min-w-0 rounded-[22px] border border-border bg-surface p-5 shadow-sm">
             <h3 className="text-h3">Distribution of max drawdown</h3>
             <p className="mb-4 text-secondary">Deepest fall on your allocation within each future</p>
             <div style={{ height: 230 }}>

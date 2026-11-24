@@ -4,7 +4,6 @@ import { SeatIcon } from "@/components/common/seat-icon";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import { Address } from "@/components/common/address";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Dropdown,
@@ -18,12 +17,14 @@ import { cn } from "@/lib/utils";
 import type { Notification } from "@/types/domain";
 import { NavSearch } from "./nav-search";
 import { Logo } from "./logo";
-import { DEMO_WALLET, useApp } from "./providers";
+import { getPhantom, shortAddress, useApp } from "./providers";
 import { ThemeToggle } from "./theme-toggle";
 import { AccountMenu, GuestMenu } from "./account-menu";
 import { SiteMenu } from "./site-menu";
+import { NAV_GROUPS, NavMenu } from "./nav-menu";
 import { useT } from "./i18n-provider";
 import { LanguageSwitcher } from "./language-switcher";
+import { CurrencySwitcher } from "./currency";
 import type { MessageKey } from "@/lib/i18n/messages";
 
 const links: { href: string; label: MessageKey; primary?: boolean; icon?: React.ElementType; live?: boolean }[] = [
@@ -40,6 +41,8 @@ function useActive() {
   return (href: string) => {
     const [p, q] = href.split("?");
     if (q?.includes("view=leaderboard")) return path === "/strategies" && sp.get("view") === "leaderboard";
+    // filtered shortcuts (e.g. /strategies?avail=free) are active only when their filters are set
+    if (q) return path === p && [...new URLSearchParams(q)].every(([k, v]) => sp.get(k) === v);
     if (p === "/strategies") return path.startsWith("/strategies") && sp.get("view") !== "leaderboard";
     return path.startsWith(p);
   };
@@ -48,89 +51,43 @@ function useActive() {
 function NavLinks({ onNavigate, vertical }: { onNavigate?: () => void; vertical?: boolean }) {
   const isActive = useActive();
   const t = useT();
+  if (!vertical) {
+    return (
+      <>
+        {NAV_GROUPS.map((g, i) => (
+          <span key={g.label} className="contents">
+            {i === 2 ? <span aria-hidden className="mx-1 h-5 w-px self-center bg-border-strong dark:bg-white/25" /> : null}
+            <NavMenu group={g} active={g.items.some((it) => isActive(it.href))} />
+          </span>
+        ))}
+      </>
+    );
+  }
   return (
     <>
       {links.map((l) => {
         const on = isActive(l.href);
         const Icon = l.icon;
         return (
-          // Secondary links live in the "More" menu on desktop, leaving room for a wide search field.
-          <span key={l.href} className={cn("contents", !vertical && !l.primary && "hidden")}>
           <Link
+            key={l.href}
             href={l.href}
             onClick={onNavigate}
             aria-current={on ? "page" : undefined}
             className={cn(
-              "transition-colors",
-              vertical
-                ? "flex h-12 items-center rounded-md px-3 text-[15px] font-semibold hover:bg-bg-subtle"
-                : cn("group relative flex h-16 items-center whitespace-nowrap px-1 text-[15px] text-text dark:text-white", l.primary ? "font-semibold" : "font-medium"),
-              vertical && (on ? "bg-primary-soft text-primary-soft-text" : "text-secondary hover:text-text"),
+              "flex h-12 items-center rounded-full px-4 text-[15px] font-semibold transition-colors hover:bg-bg-subtle",
+              on ? "bg-primary-soft text-primary-soft-text" : "text-secondary hover:text-text",
             )}
           >
-            {Icon && l.primary ? <Icon className={cn("shrink-0", vertical ? "mr-2.5 size-[18px]" : "mr-1.5 size-4")} strokeWidth={2} /> : null}
+            {Icon && l.primary ? <Icon className="mr-2.5 size-[18px] shrink-0" strokeWidth={2} /> : null}
             {t(l.label)}
-            {l.live ? (
-              <span className="relative ml-1.5 flex size-1.5" aria-label="live">
-                <span className={cn("absolute inline-flex size-full animate-ping rounded-full opacity-70", vertical ? "bg-primary" : "bg-primary dark:bg-white")} />
-                <span className={cn("relative inline-flex size-1.5 rounded-full", vertical ? "bg-primary" : "bg-primary dark:bg-white")} />
-              </span>
-            ) : null}
-            {!vertical ? (
-              <span
-                className={cn(
-                  "absolute inset-x-1 bottom-0 h-[3px] rounded-t-full bg-primary transition-opacity dark:bg-white",
-                  on ? "opacity-100" : "opacity-0 group-hover:opacity-40 group-focus-visible:opacity-70",
-                )}
-              />
-            ) : null}
           </Link>
-          </span>
         );
       })}
-      {!vertical ? (
-        <>
-          <span aria-hidden className="mx-1 h-5 w-px self-center bg-border-strong dark:bg-white/25" />
-          <MoreMenu />
-        </>
-      ) : null}
     </>
   );
 }
 
-/** Secondary links (Leaderboard, How it works, Fees) in a compact menu next to the primary links. */
-function MoreMenu() {
-  const t = useT();
-  const router = useRouter();
-  const isActive = useActive();
-  const secondary = links.filter((l) => !l.primary);
-  const anyOn = secondary.some((l) => isActive(l.href));
-  return (
-    <Dropdown>
-      <DropdownTrigger
-        className={cn(
-          "group relative ml-1 flex h-16 items-center gap-1 whitespace-nowrap px-1 text-[15px] font-medium text-text outline-none dark:text-white",
-        )}
-      >
-        {t("nav.more")}
-        <ChevronDown className="size-4 transition-transform duration-200 group-data-[state=open]:rotate-180" strokeWidth={2} />
-        <span
-          className={cn(
-            "absolute inset-x-1 bottom-0 h-[3px] rounded-t-full bg-primary transition-opacity dark:bg-white",
-            anyOn ? "opacity-100" : "opacity-0 group-hover:opacity-40 group-focus-visible:opacity-70 group-data-[state=open]:opacity-70",
-          )}
-        />
-      </DropdownTrigger>
-      <DropdownContent align="start" className="font-sans" onCloseAutoFocus={(e) => e.preventDefault()}>
-        {secondary.map((l) => (
-          <DropdownItem key={l.href} onSelect={() => router.push(l.href)} className={cn(isActive(l.href) && "text-primary-text")}>
-            {t(l.label)}
-          </DropdownItem>
-        ))}
-      </DropdownContent>
-    </Dropdown>
-  );
-}
 
 export function TopNav({
   notifications,
@@ -154,7 +111,7 @@ export function TopNav({
     <header
       className={cn(
         "site-header sticky top-0 z-30 font-display font-medium text-text transition-shadow duration-150 dark:text-white",
-        scrolled && "shadow-[0_4px_16px_rgba(15,23,41,0.18)]",
+        scrolled && "border-b border-border",
         className,
       )}
     >
@@ -174,6 +131,7 @@ export function TopNav({
           <div className="xl:hidden">
             <NavSearch variant="icon" />
           </div>
+          <CurrencySwitcher className="hidden sm:inline-flex" />
           <LanguageSwitcher onBlue className="hidden md:inline-flex" />
           <ThemeToggle onBlue className="hidden md:inline-flex" />
           {app.loggedIn ? (
@@ -207,22 +165,26 @@ function LoggedIn({ notifications }: { notifications: Notification[] }) {
   const unread = notifications.filter((n) => !n.read).length;
   return (
     <>
+      {/* Wallet: its own button (not inside the profile menu) */}
       {app.walletConnected ? (
-        <span className="hidden h-8 items-center gap-2 rounded-md border border-border-strong px-2.5 text-text xl:inline-flex dark:border-white/30 dark:text-white dark:[&_button]:text-white/80 dark:[&_button:hover]:text-white">
-          <span className="size-2 rounded-full bg-success" aria-hidden />
-          <Address value={DEMO_WALLET} />
-        </span>
+        <Link
+          href="/app/wallet"
+          className={cn(buttonVariants({ variant: "outline", size: "sm" }), "hidden bg-transparent font-medium md:inline-flex dark:border-white/30 dark:text-white dark:hover:bg-white/10")}
+        >
+          <Wallet strokeWidth={1.75} />
+          <span className="font-mono text-[12.5px]">{shortAddress(app.walletAddress)}</span>
+        </Link>
       ) : (
         <Button
           variant="outline"
           size="sm"
-          className="hidden bg-transparent font-medium xl:inline-flex dark:border-white/40 dark:text-white dark:hover:bg-white/10"
+          className="hidden bg-transparent font-medium md:inline-flex dark:border-white/30 dark:text-white dark:hover:bg-white/10"
           loading={connecting}
           onClick={async () => {
             setConnecting(true);
-            await app.connectWallet();
+            const addr = await app.connectWallet();
             setConnecting(false);
-            toast({ kind: "success", title: "Wallet connected", body: "Mock Solana wallet 7xKX…9fQa" });
+            if (addr) toast({ kind: "success", title: "Wallet connected", body: `${getPhantom() ? "Phantom" : "Demo wallet"} · ${shortAddress(addr)}` });
           }}
         >
           {!connecting ? <Wallet strokeWidth={1.75} /> : null}
@@ -232,7 +194,7 @@ function LoggedIn({ notifications }: { notifications: Notification[] }) {
       <Dropdown>
         <DropdownTrigger
           aria-label={`Notifications (${unread} unread)`}
-          className="relative inline-flex size-9 items-center justify-center rounded-md text-text hover:bg-bg-muted dark:text-white dark:hover:bg-white/10"
+          className="relative inline-flex size-9 items-center justify-center rounded-full text-text hover:bg-bg-muted dark:text-white dark:hover:bg-white/10"
         >
           <Bell className="size-[18px]" strokeWidth={1.75} />
           {unread ? (

@@ -32,18 +32,13 @@ export async function TopicBar({ counts }: { counts: { all: number; free: number
           ) : (
             <Link
               key={tp.href}
+              prefetch={false}
               href={tp.href}
               className={cn(
                 "inline-flex h-8 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-medium text-secondary transition-colors hover:bg-bg-muted hover:text-text",
                 "live" in tp && "font-semibold text-text",
               )}
             >
-              {"live" in tp ? (
-                <span className="relative flex size-2">
-                  <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-60" />
-                  <span className="relative inline-flex size-2 rounded-full bg-primary" />
-                </span>
-              ) : null}
               {"icon" in tp && tp.icon ? <tp.icon className={cn("size-3.5", "live" in tp ? "text-primary-text" : "text-tertiary")} strokeWidth={1.75} /> : null}
               {tp.label}
               {"n" in tp && tp.n != null ? <span className="tnum text-[11.5px] text-tertiary">{tp.n}</span> : null}

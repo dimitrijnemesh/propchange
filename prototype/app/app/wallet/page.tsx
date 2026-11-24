@@ -71,7 +71,7 @@ export default async function WalletPage() {
                 {p.seats.map(({ seat, strategy }) => (
                   <tr key={seat.id} className="h-12">
                     <td className="px-5 font-semibold">
-                      <Link href={`/strategies/${strategy.slug}`} className="hover:text-primary-text">
+                      <Link prefetch={false} href={`/strategies/${strategy.slug}`} className="hover:text-primary-text">
                         {strategy.name}
                       </Link>
                     </td>

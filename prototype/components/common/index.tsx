@@ -130,7 +130,7 @@ export function MetricTile({
   children?: React.ReactNode;
 }) {
   return (
-    <div className={cn("min-w-0 rounded-lg border border-border bg-surface p-4 md:p-5", className)}>
+    <div className={cn("min-w-0 rounded-[22px] border border-border bg-surface p-4 md:p-5", className)}>
       <div className="flex items-center gap-1.5 text-caption text-secondary">
         {label}
         {info ? <InfoTip content={info} label={`About ${label}`} /> : null}

@@ -2,7 +2,7 @@ import { seatPrice, FEE_SPLIT } from "@/lib/pricing";
 import { procSpecs } from "./procedural";
 import { mulberry32 } from "@/lib/rng";
 import type { Epoch, Market, MetricSet, RiskRule, Strategy, StrategyState, Venue } from "@/types/domain";
-import { TODAY, addDays, computeSeriesMetrics, navSeries } from "./nav";
+import { TODAY, addDays, computeSeriesMetrics, daysAgoLabel, navSeries } from "./nav";
 
 interface Fixture {
   id: string;
@@ -340,7 +340,7 @@ const fixtures: Fixture[] = [
     compliance: { kept: 7, settled: 9 },
     breaches: [
       { index: 4, kind: "hard", reason: "Leverage 8.9x exceeded the 8.0x limit" },
-      { index: 9, kind: "hard", reason: "Max drawdown 19.8% exceeded the 19.5% limit on Oct 2" },
+      { index: 9, kind: "hard", reason: `Max drawdown 19.8% exceeded the 19.5% limit on ${daysAgoLabel(4)}` },
     ],
     contract: {
       p99Daily: 3.3,
@@ -356,7 +356,7 @@ const fixtures: Fixture[] = [
     seatPrice7dChange: -0.087,
     seatsTraded30d: 6,
     pausedReason:
-      "Hard breach on Oct 2: max drawdown 19.8% exceeded the 19.5% limit. Copying stopped and Epoch 9 fees were refunded to followers.",
+      `Hard breach on ${daysAgoLabel(4)}: max drawdown 19.8% exceeded the 19.5% limit. Copying stopped and Epoch 9 fees were refunded to followers.`,
   },
   {
     id: "london-session",
@@ -836,7 +836,7 @@ const generated: Fixture[] = [
   gen({ id: "majors-mm", name: "Majors Liquidity", trader: "lucas.m", markets: ["crypto"], instruments: ["BTC", "ETH", "SOL"], venue: "Bybit", style: "Market-making style · minutes", description: D("Passive liquidity provision style on majors with inventory limits. Small edge, high turnover."), days: 360, r: 0.152, mdd: 0.046, risk: 22, cap: 120_000, taken: 40, base: 55, kept: 11, settled: 11, win: 0.66, payoff: 0.85, trades: 9100, hold: 0.3, waitlist: 41 }),
   // amara.o — commodities via forex/CFD
   gen({ id: "gold-swing", name: "Gold Macro Swing", trader: "amara.o", markets: ["forex"], instruments: ["XAUUSD", "XAGUSD"], venue: "MT5", style: "Swing · days", description: D("Swing trades on gold and silver around macro catalysts with scaled exits."), days: 590, r: 0.231, mdd: 0.118, risk: 41, cap: 450_000, taken: 133, base: 30, kept: 16, settled: 18, win: 0.48, payoff: 1.75, trades: 410, hold: 70 }),
-  gen({ id: "oil-momentum", name: "Oil Momentum", trader: "amara.o", markets: ["futures"], instruments: ["USOIL", "UKOIL"], venue: "MT5", style: "Momentum · 1–5 days", description: D("Momentum on crude oil with event filters around inventory reports."), state: "paused", days: 400, r: 0.188, mdd: 0.171, risk: 58, cap: 300_000, taken: 64, base: 28, kept: 9, settled: 12, win: 0.45, payoff: 1.6, trades: 360, hold: 44, pausedReason: "Hard breach on Oct 3: daily loss 5.1% exceeded the 4.5% limit. Copying stopped and Epoch 12 fees were refunded." }),
+  gen({ id: "oil-momentum", name: "Oil Momentum", trader: "amara.o", markets: ["futures"], instruments: ["USOIL", "UKOIL"], venue: "MT5", style: "Momentum · 1–5 days", description: D("Momentum on crude oil with event filters around inventory reports."), state: "paused", days: 400, r: 0.188, mdd: 0.171, risk: 58, cap: 300_000, taken: 64, base: 28, kept: 9, settled: 12, win: 0.45, payoff: 1.6, trades: 360, hold: 44, pausedReason: `Hard breach on ${daysAgoLabel(3)}: daily loss 5.1% exceeded the 4.5% limit. Copying stopped and Epoch 12 fees were refunded.` }),
   // dmitri.v — crypto breakout
   gen({ id: "crypto-breakout", name: "Crypto Breakout 1R", trader: "dmitri.v", markets: ["crypto"], instruments: ["SOL", "ETH", "AVAX", "LINK", "BTC"], venue: "Bybit", style: "Breakout · 1–3 days", description: D("Range breakouts on liquid crypto with fixed 1R stops and partial profit at 2R."), days: 420, r: 0.412, mdd: 0.163, risk: 49, cap: 220_000, taken: 70, base: 42, kept: 11, settled: 13, win: 0.42, payoff: 2.1, trades: 520, hold: 30, waitlist: 0 }),
   gen({ id: "meme-rotation", name: "Meme Rotation", trader: "dmitri.v", markets: ["crypto"], instruments: ["DOGE", "PEPE", "BONK", "WIF"], venue: "Bybit", style: "Momentum rotation", description: D("Rotates into the strongest meme coins weekly. Highly volatile; flagged for concentration."), days: 300, r: 0.954, mdd: 0.48, risk: 82, cap: 30_000, taken: 10, base: 50, kept: 5, settled: 9, win: 0.4, payoff: 2.4, trades: 260, hold: 60, flags: ["Concentration", "Hidden tail risk"] }),

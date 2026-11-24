@@ -1120,3 +1120,285 @@ html:not(.dark) .lift:hover {
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* ============================================================
+   Exchange-style flat UI: no big shadows, no decorative motion.
+   ============================================================ */
+:root {
+  --shadow-sm: none;
+  --shadow-md: 0 4px 16px rgba(19, 20, 23, 0.08); /* popovers and menus only */
+}
+.dark {
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+/* cards never lift or glow on hover */
+html:not(.dark) .lift:hover,
+.lift:hover {
+  transform: none;
+  box-shadow: none;
+}
+/* plain buttons instead of glass/gradient ones */
+.btn-glass,
+.btn-glass:hover,
+.btn-glass:active,
+.dark .btn-glass,
+.dark .btn-glass:hover,
+.dark .btn-glass:active,
+.btn-glass-ghost,
+.btn-glass-ghost:hover,
+.dark .btn-glass-ghost,
+.dark .btn-glass-ghost:hover {
+  box-shadow: none;
+  transform: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.kpi-glass,
+.dark .kpi-glass {
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+/* entrance animations off: content just appears (skeletons still show while data loads) */
+.anim-fade,
+.anim-pop,
+.anim-palette {
+  animation: none;
+}
+.feed-in {
+  animation: none;
+}
+
+/* ---------- Performance: no blur layers, no endless decorative animation ---------- */
+*,
+*::before,
+*::after {
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+.site-header,
+.topic-bar,
+.status-bar {
+  background: var(--bg);
+}
+.dark .site-header,
+.dark .topic-bar,
+.dark .status-bar {
+  background: var(--bg);
+}
+/* hero background mark stays, but static (animating a blurred SVG repaints every frame) */
+.hero-art-svg,
+.hero-art-echo {
+  animation: none !important;
+}
+/* theme switch is instant */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none !important;
+}
+
+/* ---------- Light theme, exchange-style: neutral greys, green up / red down ---------- */
+html:not(.dark) {
+  --bg: #ffffff;
+  --bg-subtle: #fafafa;
+  --bg-muted: #f2f3f5;
+  --surface: #ffffff;
+  --border: #eaecef;
+  --border-strong: #d5d9de;
+  --text: #1e2329;
+  --text-secondary: #474d57;
+  --text-tertiary: #707a8a;
+  --text-disabled: #b7bdc6;
+  --primary-soft: #eef3ff;
+  --success: #0b9f6b;
+  --success-soft: #e7f6f0;
+  --danger: #d9363e;
+  --danger-soft: #fdecec;
+  --warning: #b7791f;
+  --warning-soft: #fdf4e3;
+  --chart-follower: #9aa4b2;
+}
+
+
+/* ---- no horizontal layout jump: always reserve the scrollbar's space, including while a
+   menu/dialog locks scrolling (Radix adds margin-right to <body> to compensate, which would
+   now double-shift, so neutralise it). */
+html {
+  scrollbar-gutter: stable;
+}
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
+/* Hero art inside its own right-hand column (landing): no fade mask, mark centred in the box. */
+.hero-art.hero-art--contained {
+  overflow: visible;
+  /* soft round fade so the outer ripples dissolve instead of hitting a hard edge */
+  -webkit-mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 72%, transparent 100%);
+  inset: -12%;
+}
+.hero-art.hero-art--contained .hero-art-svg {
+  width: 62%;
+  right: 19%;
+  top: 50%;
+}
+/* Landing hero fills the first screen exactly: down to the status-bar ticker, no gap. */
+/* the hero always fills the first screen (logged in or out), so the next section never peeks in */
+.home-hero {
+  min-height: calc(100svh - var(--home-hero-offset, 0px));
+}
+
+/* Top-nav hover panels: a quick springy drop ("jump") + staggered items. */
+@keyframes nav-pop {
+  0% { opacity: 0; transform: translateY(-10px) scale(0.96); }
+  60% { opacity: 1; transform: translateY(2px) scale(1.005); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes nav-pop-item {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+.nav-pop {
+  transform-origin: top left;
+  animation: nav-pop 260ms cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+.nav-pop-item {
+  animation: nav-pop-item 220ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .nav-pop,
+  .nav-pop-item { animation: none; }
+}
+
+/* giant footer brand line: brand-blue tint fading to nothing at the bottom */
+:root { --footer-wordmark: rgba(17, 21, 43, 0.07); }
+html.dark { --footer-wordmark: rgba(255, 255, 255, 0.075); }
+/* BingX-style: one flat muted colour, edge to edge of the content column */
+.footer-wordmark-fit {
+  container-type: inline-size;
+}
+.footer-wordmark-text {
+  display: block;
+  white-space: nowrap;
+  color: var(--footer-wordmark);
+  /* "PropChange" in Space Grotesk 600 at -0.04em is ~5.5em wide -> fill 100% of the column */
+  font-size: 18.05cqw;
+  letter-spacing: -0.04em;
+  line-height: 0.82;
+  margin-left: -0.035em;
+}
+
+/* 3D seat over the hero art: gentle float */
+@keyframes hero-seat-float {
+  0%, 100% { transform: translateY(0) rotate(-1deg); }
+  50% { transform: translateY(-14px) rotate(1deg); }
+}
+.hero-seat { animation: hero-seat-float 6s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .hero-seat { animation: none; } }
+
+/* ---- landing hero stage (behind the 3D seat) ---- */
+.hero-glow {
+  background:
+    radial-gradient(42% 46% at 55% 50%, var(--hero-glow-a), transparent 70%),
+    radial-gradient(70% 60% at 55% 55%, var(--hero-glow-b), transparent 75%);
+}
+html:not(.dark) .home-hero {
+  background:
+    radial-gradient(60% 70% at 72% 40%, rgba(120, 150, 255, 0.16), transparent 70%),
+    linear-gradient(180deg, #f4f7ff 0%, #ffffff 100%);
+}
+.hero-bg-grid {
+  background-image:
+    linear-gradient(var(--hero-bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hero-bg-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center center;
+  -webkit-mask-image: radial-gradient(75% 70% at 60% 45%, #000 20%, transparent 80%);
+  mask-image: radial-gradient(75% 70% at 60% 45%, #000 20%, transparent 80%);
+}
+:root { --hero-bg-grid: rgba(59, 99, 255, 0.09); }
+html.dark { --hero-bg-grid: rgba(120, 145, 255, 0.08); }
+.hero-grid {
+  background-image:
+    linear-gradient(var(--hero-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hero-grid-line) 1px, transparent 1px);
+  background-size: 56px 56px;
+  transform: perspective(700px) rotateX(62deg);
+  transform-origin: 50% 100%;
+  -webkit-mask-image: radial-gradient(60% 90% at 50% 100%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(60% 90% at 50% 100%, #000 30%, transparent 75%);
+}
+:root { --hero-glow-a: rgba(59, 99, 255, 0.22); --hero-glow-b: rgba(59, 99, 255, 0.08); --hero-grid-line: rgba(59, 99, 255, 0.18); }
+html.dark { --hero-glow-a: rgba(59, 99, 255, 0.34); --hero-glow-b: rgba(59, 99, 255, 0.1); --hero-grid-line: rgba(110, 140, 255, 0.16); }
+@keyframes hero-item-float {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-16px) rotate(3deg); }
+}
+.hero-item { animation: hero-item-float 6s ease-in-out infinite; filter: drop-shadow(0 10px 14px rgba(59, 99, 255, 0.14)); }
+html.dark .hero-item { filter: drop-shadow(0 18px 24px rgba(20, 40, 140, 0.35)); }
+/* 3D seat shadow: soft and light on white, deep blue on dark */
+.seat-shadow { filter: drop-shadow(0 16px 22px rgba(59, 99, 255, 0.16)) brightness(1.12) saturate(0.82); }
+html.dark .seat-shadow { filter: drop-shadow(0 30px 50px rgba(20, 40, 140, 0.45)); }
+@media (prefers-reduced-motion: reduce) { .hero-item { animation: none; } }
+
+/* landing phone: the drawn app screen scrolls by itself like a screen recording */
+@keyframes app-scroll {
+  0%, 12% { transform: translateY(0); }
+  48%, 62% { transform: translateY(calc(-100% + 464px)); }
+  100% { transform: translateY(0); }
+}
+.app-scroll { animation: app-scroll 16s cubic-bezier(0.65, 0, 0.35, 1) infinite; will-change: transform; }
+.app-scroll:hover { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .app-scroll { animation: none; } }
+
+/* ---------- landing sections: shared backdrops ---------- */
+.section-grid {
+  background-image:
+    linear-gradient(var(--hero-bg-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hero-bg-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+  background-position: center top;
+  -webkit-mask-image: radial-gradient(60% 55% at 50% 0%, #000 10%, transparent 75%);
+  mask-image: radial-gradient(60% 55% at 50% 0%, #000 10%, transparent 75%);
+}
+.section-glow {
+  background: radial-gradient(45% 40% at 50% 0%, var(--hero-glow-a), transparent 70%);
+}
+/* gradient hairline border for feature panels */
+.glow-border {
+  position: relative;
+  isolation: isolate;
+}
+.glow-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(91, 124, 255, 0.55), rgba(91, 124, 255, 0.08) 40%, rgba(91, 124, 255, 0.04) 60%, rgba(91, 124, 255, 0.45));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: -1;
+}
+/* blue CTA banner */
+.cta-banner {
+  background:
+    radial-gradient(60% 90% at 85% 50%, rgba(255, 255, 255, 0.22), transparent 60%),
+    linear-gradient(120deg, #2848e6 0%, #3b63ff 55%, #5a7dff 100%);
+}
+.cta-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 40px 40px;
+  -webkit-mask-image: radial-gradient(70% 100% at 85% 50%, #000 20%, transparent 80%);
+  mask-image: radial-gradient(70% 100% at 85% 50%, #000 20%, transparent 80%);
+}
+@keyframes live-ping { 0% { transform: scale(1); opacity: 0.7; } 100% { transform: scale(2.4); opacity: 0; } }
+.live-dot { position: relative; display: inline-block; width: 7px; height: 7px; border-radius: 9999px; background: var(--up); }
+.live-dot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--up); animation: live-ping 1.6s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .live-dot::after { animation: none; } }

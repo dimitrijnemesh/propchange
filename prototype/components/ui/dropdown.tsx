@@ -23,7 +23,7 @@ export function DropdownContent({
         sideOffset={8}
         {...rest}
         className={cn(
-          "anim-fade z-50 min-w-[200px] rounded-lg border border-border bg-surface p-1 shadow-md",
+          "anim-fade z-50 min-w-[200px] rounded-2xl border border-border bg-surface p-2 shadow-md",
           className,
         )}
       >
@@ -40,7 +40,7 @@ export function DropdownItem({
   return (
     <M.Item
       className={cn(
-        "flex h-9 cursor-pointer select-none items-center gap-2.5 rounded-md px-2.5 text-sm outline-none data-[highlighted]:bg-bg-subtle [&_svg]:size-4 [&_svg]:text-secondary",
+        "flex h-9 cursor-pointer select-none items-center gap-2.5 rounded-full px-3 text-sm outline-none data-[highlighted]:bg-bg-subtle [&_svg]:size-4 [&_svg]:text-secondary",
         className,
       )}
       {...props}

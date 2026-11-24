@@ -45,7 +45,7 @@ export function FaqBrowser({ data }: { data: FaqCategory[] }) {
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Search questions…"
-            className="h-11 w-full rounded-lg border border-border bg-surface pl-10 pr-3 text-[15px] outline-none transition-colors placeholder:text-tertiary focus:border-primary"
+            className="h-11 w-full rounded-[22px] border border-border bg-surface pl-10 pr-3 text-[15px] outline-none transition-colors placeholder:text-tertiary focus:border-primary"
           />
         </label>
         {list.length === 0 ? (

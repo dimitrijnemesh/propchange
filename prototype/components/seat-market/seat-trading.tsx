@@ -5,7 +5,8 @@ import { SeatIcon } from "@/components/common/seat-icon";
 import { SolanaBadge } from "@/components/common/solana-mark";
 import { OnchainCard } from "./onchain-card";
 import { SeatChart } from "./seat-chart";
-import { useApp } from "@/components/layout/providers";
+import { useAuthGate } from "@/components/auth/auth-gate";
+import { getPhantom, shortAddress, useApp } from "@/components/layout/providers";
 import { useToast } from "@/components/ui/toast";
 import { shortAddr } from "@/lib/format";
 import { cn, sleep } from "@/lib/utils";
@@ -56,6 +57,7 @@ function consume(levels: BookLevel[], qty: number) {
 export function SeatTrading({ token, owned }: { token: SeatToken; owned: number }) {
   const app = useApp();
   const toast = useToast();
+  const gate = useAuthGate("trade Seats", "Minting, buying and selling Seats happens from your account. It takes a minute and you come straight back here.");
   const [asks, setAsks] = useState(token.asks);
   const [bids, setBids] = useState(token.bids);
   const [trades, setTrades] = useState<SeatTrade[]>(token.trades);
@@ -98,8 +100,8 @@ export function SeatTrading({ token, owned }: { token: SeatToken; owned: number 
 
   const submit = async () => {
     if (!app.walletConnected) {
-      await app.connectWallet();
-      toast({ kind: "success", title: "Wallet connected", body: "Phantom · 7xKX…9fQa" });
+      const addr = await app.connectWallet();
+      if (addr) toast({ kind: "success", title: "Wallet connected", body: `${app.walletReal || getPhantom() ? "Phantom" : "Demo wallet"} · ${shortAddress(addr)}` });
       return;
     }
     setPhase("signing");
@@ -159,22 +161,24 @@ export function SeatTrading({ token, owned }: { token: SeatToken; owned: number 
       ? "Approve in wallet…"
       : phase === "confirming"
         ? "Confirming on Solana…"
-        : !app.walletConnected
-          ? "Connect wallet"
-          : tab === "mint"
+        : !app.loggedIn
+          ? "Log in to trade"
+          : !app.walletConnected
+            ? "Connect wallet"
+            : tab === "mint"
             ? `Mint ${quote.n} Seat${quote.n === 1 ? "" : "s"}`
             : `${type === "limit" ? "Place " : ""}${tab === "buy" ? "Buy" : "Sell"} ${qty} ${token.symbol}`;
 
   return (
     /* phone: chart → trade panel → book/trades; desktop: chart + book left, panel column right */
-    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
-      <section className="min-w-0 rounded-xl border border-border bg-surface p-4 shadow-sm md:p-5 lg:col-start-1 lg:row-start-1">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,1fr)_360px] lg:grid-rows-[auto_1fr]">
+      <section className="min-w-0 rounded-[22px] border border-border bg-surface p-4 shadow-sm md:p-5 lg:col-start-1 lg:row-start-1">
         <SeatChart data={token.chart} />
       </section>
 
       <aside className="min-w-0 space-y-4 lg:sticky lg:top-24 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:h-fit">
         {/* trade panel */}
-        <section className="rounded-xl border border-border bg-surface shadow-sm">
+        <section className="rounded-[22px] border border-border bg-surface">
           <div className="grid grid-cols-3 gap-1 border-b border-border p-1.5" role="tablist" aria-label="Trade">
             {(["mint", "buy", "sell"] as const).map((k) => (
               <button
@@ -305,14 +309,14 @@ export function SeatTrading({ token, owned }: { token: SeatToken; owned: number 
 
             <button
               type="button"
-              onClick={submit}
-              disabled={phase !== "idle" || (app.walletConnected && blocked)}
+              onClick={gate.guard(submit)}
+              disabled={phase !== "idle" || (app.loggedIn && app.walletConnected && blocked)}
               className={cn(
                 "inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg text-[14.5px] font-semibold text-white transition-colors disabled:opacity-50",
                 tab === "sell" ? "bg-[var(--down)] hover:opacity-90" : "bg-primary hover:bg-primary-hover",
               )}
             >
-              {phase !== "idle" ? <Loader2 className="size-4 animate-spin" /> : !app.walletConnected ? <Wallet className="size-4" /> : null}
+              {phase !== "idle" ? <Loader2 className="size-4 animate-spin" /> : app.loggedIn && !app.walletConnected ? <Wallet className="size-4" /> : null}
               {cta}
             </button>
             <div className="flex justify-center">
@@ -326,7 +330,7 @@ export function SeatTrading({ token, owned }: { token: SeatToken; owned: number 
         </section>
 
         {/* holdings */}
-        <section className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+        <section className="rounded-[22px] border border-border bg-surface p-4 shadow-sm">
           <h2 className="flex items-center gap-2 text-[14px] font-semibold">
             <SeatIcon className="size-4 text-primary-text" strokeWidth={1.75} /> Your {token.symbol}
           </h2>
@@ -370,7 +374,7 @@ export function SeatTrading({ token, owned }: { token: SeatToken; owned: number 
       <div className="min-w-0 lg:col-start-1 lg:row-start-2">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {/* order book */}
-          <section className="min-w-0 rounded-xl border border-border bg-surface shadow-sm">
+          <section className="min-w-0 rounded-[22px] border border-border bg-surface">
             <h2 className="border-b border-border px-4 py-3 text-[14px] font-semibold">Order book</h2>
             {token.tradable ? (
               <div className="p-2 text-[12.5px]">
@@ -418,7 +422,7 @@ export function SeatTrading({ token, owned }: { token: SeatToken; owned: number 
           </section>
 
           {/* recent trades */}
-          <section className="min-w-0 rounded-xl border border-border bg-surface shadow-sm">
+          <section className="min-w-0 rounded-[22px] border border-border bg-surface">
             <h2 className="border-b border-border px-4 py-3 text-[14px] font-semibold">Recent trades</h2>
             <div className="scroll-thin max-h-[436px] overflow-y-auto p-2 text-[12.5px]">
               <div className="grid grid-cols-[56px_1fr_40px_1fr] gap-2 px-2 pb-1 text-[11px] text-tertiary">
@@ -445,6 +449,7 @@ export function SeatTrading({ token, owned }: { token: SeatToken; owned: number 
         </div>
       </div>
 
+      {gate.dialog}
     </div>
   );
 }

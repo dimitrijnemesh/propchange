@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Area,
   AreaChart,
@@ -83,6 +83,9 @@ export function LegendItem({ color, dashed, label, value, tone }: { color: strin
  * Exchange-grade performance chart: TradingView-style legend that follows the crosshair,
  * right-side price axis with a last-value pill, and a synced daily-returns pane below.
  */
+/** Max points a time-series chart renders; more adds no visible detail but costs a lot on hover. */
+const MAX_POINTS = 260;
+
 export function NavChart({ data, height = 300 }: { data: NavPoint[]; height?: number }) {
   const [period, setPeriod] = useState<Period>("1Y");
   const [bench, setBench] = useState(false);
@@ -91,23 +94,94 @@ export function NavChart({ data, height = 300 }: { data: NavPoint[]; height?: nu
   const rows = useMemo(() => {
     const slice = data.slice(-Math.min(data.length, periodDays[period] + 1));
     const b = slice[0];
-    return slice.map((p, i) => ({
-      date: p.date,
-      nav: (p.nav / b.nav - 1) * 100,
-      navAbs: p.nav,
-      follower: ((p.follower ?? p.nav) / (b.follower ?? b.nav) - 1) * 100,
-      bench: ((p.bench ?? 1) / (b.bench ?? 1) - 1) * 100,
-      day: i === 0 ? 0 : (p.nav / slice[i - 1].nav - 1) * 100,
-    }));
+    // Cap at ~MAX_POINTS: long windows become multi-day steps (bars = compounded return of the step),
+    // so hovering doesn't re-render 1,000+ bars on every mouse move.
+    const step = Math.max(1, Math.ceil((slice.length - 1) / MAX_POINTS));
+    const idx: number[] = [];
+    for (let i = 0; i < slice.length; i += step) idx.push(i);
+    if (idx[idx.length - 1] !== slice.length - 1) idx.push(slice.length - 1);
+    return idx.map((i, k) => {
+      const p = slice[i];
+      const prev = k === 0 ? null : slice[idx[k - 1]];
+      return {
+        date: p.date,
+        nav: (p.nav / b.nav - 1) * 100,
+        navAbs: p.nav,
+        follower: ((p.follower ?? p.nav) / (b.follower ?? b.nav) - 1) * 100,
+        bench: ((p.bench ?? 1) / (b.bench ?? 1) - 1) * 100,
+        day: prev ? (p.nav / prev.nav - 1) * 100 : 0,
+      };
+    });
   }, [data, period]);
   const st = useMemo(() => periodStats(data.slice(-Math.min(data.length, periodDays[period] + 1))), [data, period]);
   const last = rows[rows.length - 1];
   const cur = hover !== null && rows[hover] ? rows[hover] : last;
-  const move = (e: { activeTooltipIndex?: number | string | null }) => {
+  const move = useCallback((e: { activeTooltipIndex?: number | string | null }) => {
     const i = typeof e?.activeTooltipIndex === "number" ? e.activeTooltipIndex : Number(e?.activeTooltipIndex);
     setHover(Number.isFinite(i) ? i : null);
-  };
+  }, []);
+  const leave = useCallback(() => setHover(null), []);
   const syncId = useMemo(() => `nav-${Math.random().toString(36).slice(2, 8)}`, []);
+
+  // The plots don't depend on `hover`: moving the mouse only re-renders the legend readout above.
+  const plots = useMemo(
+    () => (
+      <>
+      <div style={{ height }} onMouseLeave={leave}>
+            <ResponsiveContainer width="100%" height="100%">
+              <ComposedChart data={rows} syncId={syncId} margin={{ top: 10, right: 0, left: 0, bottom: 0 }} onMouseMove={move}>
+                <defs>
+                  <linearGradient id="navFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="var(--chart-nav)" stopOpacity={0.22} />
+                    <stop offset="100%" stopColor="var(--chart-nav)" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="date" hide />
+                <YAxis orientation="right" {...axis} width={58} tickFormatter={(v) => `${v.toFixed(0)}%`} domain={["auto", "auto"]} />
+                <Tooltip cursor={{ stroke: "var(--text-tertiary)", strokeDasharray: "3 3", strokeWidth: 1 }} content={() => null} />
+                <ReferenceLine
+                  y={last.nav}
+                  stroke="var(--chart-nav)"
+                  strokeDasharray="2 3"
+                  strokeOpacity={0.6}
+                  label={(props: { viewBox?: { x?: number; y?: number; width?: number } }) => <AxisPill viewBox={props.viewBox} text={fmtSigned(last.nav, 1)} />}
+                />
+                {bench ? <Line type="monotone" dataKey="bench" stroke="var(--chart-bench)" strokeWidth={1.25} dot={false} isAnimationActive={false} /> : null}
+                {fol ? (
+                  <Line type="monotone" dataKey="follower" stroke="var(--chart-follower)" strokeWidth={1.4} strokeDasharray="5 4" dot={false} isAnimationActive={false} />
+                ) : null}
+                <Area
+                  type="monotone"
+                  dataKey="nav"
+                  stroke="var(--chart-nav)"
+                  strokeWidth={2}
+                  fill="url(#navFill)"
+                  isAnimationActive={false}
+                  activeDot={{ r: 4, fill: "var(--chart-nav)", stroke: "var(--surface)", strokeWidth: 2 }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </div>
+          {/* daily returns pane (synced crosshair) */}
+          <div className="mt-1 border-t border-border pt-1" style={{ height: 76 }} onMouseLeave={leave}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={rows} syncId={syncId} margin={{ top: 4, right: 0, left: 0, bottom: 0 }} onMouseMove={move} barCategoryGap={1}>
+                <XAxis dataKey="date" {...axis} tickFormatter={tickDate} minTickGap={56} />
+                <YAxis orientation="right" {...axis} width={58} tickFormatter={(v) => `${v.toFixed(1)}%`} tickCount={3} />
+                <Tooltip cursor={{ fill: "var(--bg-muted)" }} content={() => null} />
+                <Bar dataKey="day" isAnimationActive={false}>
+                  {rows.map((r, i) => (
+                    <Cell key={i} fill={r.day >= 0 ? "var(--up)" : "var(--down)"} fillOpacity={0.6} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+      </>
+    ),
+    [rows, last, bench, fol, height, syncId, move, leave],
+  );
 
   return (
     <div>
@@ -169,57 +243,7 @@ export function NavChart({ data, height = 300 }: { data: NavPoint[]; height?: nu
         </div>
       </div>
 
-      <div style={{ height }} onMouseLeave={() => setHover(null)}>
-        <ResponsiveContainer width="100%" height="100%">
-          <ComposedChart data={rows} syncId={syncId} margin={{ top: 10, right: 0, left: 0, bottom: 0 }} onMouseMove={move}>
-            <defs>
-              <linearGradient id="navFill" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="var(--chart-nav)" stopOpacity={0.22} />
-                <stop offset="100%" stopColor="var(--chart-nav)" stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <CartesianGrid vertical={false} />
-            <XAxis dataKey="date" hide />
-            <YAxis orientation="right" {...axis} width={58} tickFormatter={(v) => `${v.toFixed(0)}%`} domain={["auto", "auto"]} />
-            <Tooltip cursor={{ stroke: "var(--text-tertiary)", strokeDasharray: "3 3", strokeWidth: 1 }} content={() => null} />
-            <ReferenceLine
-              y={last.nav}
-              stroke="var(--chart-nav)"
-              strokeDasharray="2 3"
-              strokeOpacity={0.6}
-              label={(props: { viewBox?: { x?: number; y?: number; width?: number } }) => <AxisPill viewBox={props.viewBox} text={fmtSigned(last.nav, 1)} />}
-            />
-            {bench ? <Line type="monotone" dataKey="bench" stroke="var(--chart-bench)" strokeWidth={1.25} dot={false} isAnimationActive={false} /> : null}
-            {fol ? (
-              <Line type="monotone" dataKey="follower" stroke="var(--chart-follower)" strokeWidth={1.4} strokeDasharray="5 4" dot={false} isAnimationActive={false} />
-            ) : null}
-            <Area
-              type="monotone"
-              dataKey="nav"
-              stroke="var(--chart-nav)"
-              strokeWidth={2}
-              fill="url(#navFill)"
-              isAnimationActive={false}
-              activeDot={{ r: 4, fill: "var(--chart-nav)", stroke: "var(--surface)", strokeWidth: 2 }}
-            />
-          </ComposedChart>
-        </ResponsiveContainer>
-      </div>
-      {/* daily returns pane (synced crosshair) */}
-      <div className="mt-1 border-t border-border pt-1" style={{ height: 76 }} onMouseLeave={() => setHover(null)}>
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={rows} syncId={syncId} margin={{ top: 4, right: 0, left: 0, bottom: 0 }} onMouseMove={move} barCategoryGap={1}>
-            <XAxis dataKey="date" {...axis} tickFormatter={tickDate} minTickGap={56} />
-            <YAxis orientation="right" {...axis} width={58} tickFormatter={(v) => `${v.toFixed(1)}%`} tickCount={3} />
-            <Tooltip cursor={{ fill: "var(--bg-muted)" }} content={() => null} />
-            <Bar dataKey="day" isAnimationActive={false}>
-              {rows.map((r, i) => (
-                <Cell key={i} fill={r.day >= 0 ? "var(--up)" : "var(--down)"} fillOpacity={hover === i ? 1 : 0.55} />
-              ))}
-            </Bar>
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
+      {plots}
       <p className="mt-2 text-caption text-tertiary">
         Time-weighted return (cash-flow adjusted NAV) · bars = daily return · followers shown after slippage &amp; fees
       </p>
@@ -505,7 +529,9 @@ export function EquityCurveChart({ data, height = 280 }: { data: NavPoint[]; hei
       return { date: p.date, equity: Math.round(eq * 100) / 100, hwm: Math.round(hwm * 100) / 100, under: [eq, hwm] as [number, number] };
     });
     const final = rows[rows.length - 1].equity;
-    return { rows, stats: { final, net: final - capital, peak: hwm, maxDdUsd, newHighs: rows.filter((r, i) => i > 0 && r.equity >= r.hwm).length } };
+    const step = Math.max(1, Math.ceil((rows.length - 1) / MAX_POINTS));
+    const shown = step === 1 ? rows : rows.filter((_, i) => i % step === 0 || i === rows.length - 1);
+    return { rows: shown, stats: { final, net: final - capital, peak: hwm, maxDdUsd, newHighs: rows.filter((r, i) => i > 0 && r.equity >= r.hwm).length } };
   }, [data, capital, period]);
   const usd = (v: number) => `$${Math.round(v).toLocaleString("en-US")}`;
   return (

@@ -1,11 +1,18 @@
 import { gaussian, mulberry32 } from "@/lib/rng";
 import type { NavPoint } from "@/types/domain";
 
-export const TODAY = "2026-10-06";
+/** Demo "today": always the real current UTC date so the prototype never looks stale. */
+export const TODAY = process.env.NEXT_PUBLIC_DEMO_TODAY || new Date().toISOString().slice(0, 10);
 const DAY = 86_400_000;
 
 export function addDays(iso: string, n: number) {
   return new Date(new Date(iso + "T00:00:00Z").getTime() + n * DAY).toISOString().slice(0, 10);
+}
+
+/** "Nov 19" for a date n days before TODAY (n may be negative for the future). */
+export function daysAgoLabel(n: number, withYear = false) {
+  const d = new Date(addDays(TODAY, -n) + "T00:00:00Z");
+  return d.toLocaleDateString("en-US", { month: "short", day: "numeric", ...(withYear ? { year: "numeric" } : {}), timeZone: "UTC" });
 }
 
 export function daysBetween(a: string, b: string) {

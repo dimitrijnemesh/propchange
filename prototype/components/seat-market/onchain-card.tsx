@@ -3,12 +3,12 @@ import { Coins, FileCheck2, Landmark, ShieldCheck, Signature, Wallet } from "luc
 import { Address } from "@/components/common/address";
 import { SeatIcon } from "@/components/common/seat-icon";
 import { SolanaMark } from "@/components/common/solana-mark";
-import { ROYALTY, SEAT_PROGRAM_ID, SETTLEMENT_SIGNER, type SeatToken } from "@/lib/seat-curve";
+import { SEAT_PROGRAM_ID, SETTLEMENT_SIGNER, type SeatToken } from "@/lib/seat-curve";
 
 /** On-chain accounts for a Seat token: mint, escrow, program, payout, settlement signer, contract hash. */
 export function OnchainCard({ token }: { token: SeatToken }) {
   return (
-    <section className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+    <section className="rounded-[22px] border border-border bg-surface p-4 shadow-sm">
       <h2 className="flex items-center gap-2 text-[14px] font-semibold">
         <SolanaMark className="size-4" tone="gradient" /> On-chain · Solana
       </h2>
@@ -33,9 +33,7 @@ export function OnchainCard({ token }: { token: SeatToken }) {
         <div className="mb-1 flex items-center gap-1.5 font-semibold text-text">
           <Coins className="size-3.5" /> SPL Token-2022 · 1 token = 1 Seat
         </div>
-        Supply fixed by Capacity ({token.supply}). Transfer hook enforces the {Math.round(ROYALTY.trader * 100)}% trader + {Math.round(ROYALTY.platform * 100)}% platform
-        royalty and halts transfers while the strategy is paused. At Epoch end the escrow pays the trader if the Seat Contract was kept, or refunds
-        current holders if it was breached.
+        {token.supply} Seats max. Rules kept → trader is paid. Rules broken → you get a refund.
       </div>
     </section>
   );

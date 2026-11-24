@@ -41,13 +41,13 @@ export function Slider({
           max={max}
           step={step}
           onValueChange={(v) => onChange(v[0])}
-          className="relative flex h-5 w-full touch-none select-none items-center"
+          className="relative flex h-5 w-full cursor-pointer touch-none select-none items-center"
           aria-label={label}
         >
           <S.Track className="relative h-1.5 grow rounded-full bg-bg-muted">
             <S.Range className="absolute h-full rounded-full bg-primary" />
           </S.Track>
-          <S.Thumb className="block size-4 rounded-full border-2 border-primary bg-white shadow-sm transition-shadow focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--focus-ring)]" />
+          <S.Thumb className="block size-4 cursor-grab rounded-full active:cursor-grabbing border-2 border-primary bg-white shadow-sm transition-shadow focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--focus-ring)]" />
         </S.Root>
       </div>
       <div className="tnum mt-1 flex justify-between text-caption text-tertiary">

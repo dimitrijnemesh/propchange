@@ -24,14 +24,16 @@ export function LanguageSwitcher({ onBlue, className, full }: { onBlue?: boolean
       <DropdownTrigger
         aria-label={`${t("nav.language")}: ${current.label}`}
         className={cn(
-          "inline-flex h-9 items-center gap-1.5 rounded-md px-2 text-[13px] font-semibold transition-colors",
+          "inline-flex h-9 items-center justify-center gap-1.5 rounded-full text-[13px] font-semibold transition-colors",
+          full ? "px-3" : "w-9",
           onBlue ? "text-text hover:bg-bg-muted dark:text-white dark:hover:bg-white/10" : "text-secondary hover:bg-bg-subtle hover:text-text",
           pending && "opacity-60",
           className,
         )}
       >
         <Globe className="size-[18px]" strokeWidth={1.75} />
-        <span className="tnum">{full ? current.label : current.short}</span>
+        {/* navbar: globe only; footer (full) keeps the language name */}
+        {full ? <span className="tnum">{current.label}</span> : null}
       </DropdownTrigger>
       <DropdownContent className="max-h-[min(70vh,460px)] w-[220px] overflow-y-auto">
         <DropdownLabel>{t("nav.language")}</DropdownLabel>

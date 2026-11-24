@@ -2,11 +2,12 @@
 import * as D from "@radix-ui/react-dialog";
 import { LayoutGrid, Rows3, Search, SlidersHorizontal, X } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { SheetContent } from "@/components/ui/dialog";
 import { Input, Label, Select } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Pills } from "@/components/ui/tabs";
 import { PERIODS } from "@/lib/domain";
 import { cn } from "@/lib/utils";
@@ -62,15 +63,28 @@ export function PeriodSwitch({ className }: { className?: string }) {
   );
 }
 
+/**
+ * URL-backed filter state with optimistic updates: controls flip instantly (from a local
+ * patch) while the server re-renders the results; the patch is dropped once the URL catches up.
+ */
 function useParamsUpdater() {
   const router = useRouter();
   const path = usePathname();
-  const sp = useSearchParams();
+  const urlSp = useSearchParams();
   const [pending, start] = useTransition();
-  const set = (patch: Record<string, string | null>) => {
-    const next = new URLSearchParams(sp.toString());
+  const [patch, setPatch] = useState<Record<string, string | null>>({});
+  const key = urlSp.toString();
+  useEffect(() => setPatch({}), [key]);
+  const sp = useMemo(() => {
+    const next = new URLSearchParams(key);
     Object.entries(patch).forEach(([k, v]) => (v === null || v === "" ? next.delete(k) : next.set(k, v)));
+    return next;
+  }, [key, patch]);
+  const set = (p: Record<string, string | null>) => {
+    const next = new URLSearchParams(sp.toString());
+    Object.entries(p).forEach(([k, v]) => (v === null || v === "" ? next.delete(k) : next.set(k, v)));
     next.delete("page");
+    setPatch((cur) => ({ ...cur, ...p }));
     start(() => router.replace(`${path}?${next.toString()}`, { scroll: false }));
   };
   return { sp, set, pending };
@@ -181,13 +195,8 @@ function Filters({ layout }: { layout: "bar" | "sheet" }) {
         />
         <CommitDd value={dd} onCommit={(v) => set({ maxDd: v >= 70 ? null : String(v) })} />
       </div>
-      <label className={cn("flex h-10 cursor-pointer items-center gap-2 text-[13px] font-medium text-secondary", sheet && "h-auto")}>
-        <input
-          type="checkbox"
-          checked={sp.get("profitable") === "1"}
-          onChange={(e) => set({ profitable: e.target.checked ? "1" : null })}
-          className="size-4 accent-[var(--primary)]"
-        />
+      <label htmlFor={`prof-${layout}`} className={cn("flex h-10 cursor-pointer select-none items-center gap-2 text-[13px] font-medium text-secondary hover:text-text", sheet && "h-auto")}>
+        <Checkbox id={`prof-${layout}`} checked={sp.get("profitable") === "1"} onCheckedChange={(v) => set({ profitable: v ? "1" : null })} />
         Profitable in period
       </label>
     </div>
@@ -243,7 +252,7 @@ export function FilterBar({ total }: { total: number }) {
           {pending ? <span className="text-caption text-tertiary">Updating…</span> : <span className="tnum hidden text-caption text-tertiary sm:inline">{total} results</span>}
           <Select
             aria-label="Sort by"
-            className="h-9 w-auto min-w-0 max-w-full"
+            className="h-9 w-auto min-w-0 max-w-full flex-1 sm:flex-none"
             value={sp.get("sort") ?? "compliance"}
             onChange={(e) => set({ sort: e.target.value === "compliance" ? null : e.target.value, dir: null })}
           >
@@ -303,11 +312,18 @@ export function FilterBar({ total }: { total: number }) {
       </div>
       <div className="mt-3 hidden items-end gap-3 lg:flex">
         <Filters layout="bar" />
-        {activeCount || sp.get("q") || sp.get("market") ? (
-          <a href="/strategies" className="mb-2.5 ml-auto inline-flex items-center gap-1 text-[13px] font-semibold text-primary-text hover:underline">
-            <X className="size-3.5" /> Reset
-          </a>
-        ) : null}
+        {/* always occupies its space so toggling a filter never re-wraps the row */}
+        <a
+          href="/strategies"
+          aria-hidden={!(activeCount || sp.get("q") || sp.get("market"))}
+          tabIndex={activeCount || sp.get("q") || sp.get("market") ? 0 : -1}
+          className={cn(
+            "mb-2.5 ml-auto inline-flex shrink-0 items-center gap-1 text-[13px] font-semibold text-primary-text hover:underline",
+            !(activeCount || sp.get("q") || sp.get("market")) && "invisible",
+          )}
+        >
+          <X className="size-3.5" /> Reset
+        </a>
       </div>
     </div>
   );

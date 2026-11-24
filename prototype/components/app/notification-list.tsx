@@ -21,7 +21,7 @@ export function NotificationList({ items }: { items: Notification[] }) {
           Mark all as read
         </Button>
       </div>
-      <ul className="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface">
+      <ul className="divide-y divide-border overflow-hidden rounded-[22px] border border-border bg-surface">
         {list.map((n) => {
           const I = icons[n.kind];
           return (

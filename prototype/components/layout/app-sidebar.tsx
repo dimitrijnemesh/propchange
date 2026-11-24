@@ -129,7 +129,7 @@ export function AppSidebar({ role }: { role: "follower" | "trader" | "settings" 
             <button
               onClick={() => setCollapsed((c) => !c)}
               aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-              className="inline-flex size-9 items-center justify-center rounded-md text-secondary hover:bg-bg-subtle hover:text-text"
+              className="inline-flex size-9 items-center justify-center rounded-full text-secondary hover:bg-bg-subtle hover:text-text"
             >
               {collapsed ? <ChevronsRight className="size-[18px]" /> : <ChevronsLeft className="size-[18px]" />}
             </button>

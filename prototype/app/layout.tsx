@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
-import { IntroSplash } from "@/components/layout/intro-splash";
+import { CurrencyProvider } from "@/components/layout/currency";
 import { Providers } from "@/components/layout/providers";
+import { cookies } from "next/headers";
+import { CURRENCY_COOKIE, isCurrency } from "@/lib/currency";
 import { I18nProvider } from "@/components/layout/i18n-provider";
 import { MESSAGES } from "@/lib/i18n/messages";
 import { getLocale } from "@/lib/i18n/server";
@@ -40,22 +42,14 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale();
+  const ccy = (await cookies()).get(CURRENCY_COOKIE)?.value;
   return (
-    <html lang={locale} suppressHydrationWarning className={`${inter.variable} ${mono.variable} ${grotesk.variable}`}>
-      <head>
-        {/* Before first paint: skip the intro for reduced motion. */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `try{if(matchMedia("(prefers-reduced-motion: reduce)").matches)document.documentElement.classList.add("intro-done")}catch(e){}`,
-          }}
-        />
-      </head>
+    <html lang={locale} suppressHydrationWarning className={`intro-done ${inter.variable} ${mono.variable} ${grotesk.variable}`}>
       <body className="min-h-dvh font-sans">
-        <IntroSplash />
         <I18nProvider locale={locale} messages={MESSAGES[locale]}>
-          <Providers>
-            {children}
-          </Providers>
+          <CurrencyProvider initial={isCurrency(ccy) ? ccy : "USD"}>
+            <Providers>{children}</Providers>
+          </CurrencyProvider>
         </I18nProvider>
       </body>
     </html>

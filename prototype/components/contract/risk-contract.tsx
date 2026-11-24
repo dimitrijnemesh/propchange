@@ -92,7 +92,7 @@ export function RiskContractCard({
 }) {
   const rules = rulesLimit ? contract.rules.slice(0, rulesLimit) : contract.rules;
   return (
-    <section className={cn("rounded-lg border border-border bg-surface shadow-sm", className)}>
+    <section className={cn("rounded-[22px] border border-border bg-surface", className)}>
       <header className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
         <h3 className="flex items-center gap-2 whitespace-nowrap text-[15px] font-semibold">
           <ListChecks className="size-4 text-primary-text" strokeWidth={1.75} />

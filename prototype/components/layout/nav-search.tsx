@@ -1,4 +1,5 @@
 "use client";
+import { Price } from "@/components/layout/currency";
 import { Command } from "cmdk";
 import { BarChart3, Clock, Coins, Flame, Search, ShieldCheck, User, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -51,7 +52,7 @@ function StrategyRow({ s, q, rank }: { s: SearchItem; q: string; rank?: number }
       </div>
       {s.price !== undefined ? (
         <div className="shrink-0 text-right">
-          <div className="tnum text-[14px] font-semibold text-text">{fmtNumber(s.price)}</div>
+          <Price value={s.price} className="block text-[14px] font-semibold text-text" />
           <div className="flex items-center justify-end gap-1.5">
             <span className="text-[11px] text-tertiary">{t("search.perSeat")}</span>
             <span className={cn("tnum text-[12px] font-semibold", (s.change ?? 0) >= 0 ? "text-up" : "text-down")}>
@@ -398,7 +399,7 @@ export function NavSearch({ variant }: { variant: "field" | "icon" }) {
               requestAnimationFrame(() => inputRef.current?.focus());
             }}
             className={cn(
-              "inline-flex size-9 items-center justify-center rounded-md text-text transition-colors hover:bg-bg-muted dark:text-white dark:hover:bg-white/10",
+              "inline-flex size-9 items-center justify-center rounded-full text-text transition-colors hover:bg-bg-muted dark:text-white dark:hover:bg-white/10",
               open && "bg-bg-muted dark:bg-white/10",
             )}
           >

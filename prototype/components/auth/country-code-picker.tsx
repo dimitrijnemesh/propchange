@@ -45,7 +45,7 @@ export function CountryCodePicker({ value, onChange }: { value: Country; onChang
         <ChevronDown className={cn("size-3.5 text-tertiary transition-transform", open && "rotate-180")} />
       </button>
       {open ? (
-        <div className="anim-fade absolute left-0 top-[calc(100%+6px)] z-50 w-[280px] overflow-hidden rounded-lg border border-border bg-surface shadow-md">
+        <div className="anim-fade absolute left-0 top-[calc(100%+6px)] z-50 w-[280px] overflow-hidden rounded-[22px] border border-border bg-surface shadow-md">
           <div className="relative border-b border-border p-2">
             <Search className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-tertiary" />
             <input

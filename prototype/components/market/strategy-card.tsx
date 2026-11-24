@@ -1,118 +1,102 @@
+import { Users } from "lucide-react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { Avatar, Delta, Pct } from "@/components/common";
+import { Avatar } from "@/components/common";
 import { AreaSpark } from "@/components/common/area-spark";
+import { Price } from "@/components/layout/currency";
 import { PERIODS, priceFrom, type Period, type StrategyWithSpark } from "@/lib/domain";
-import { fmtNumber } from "@/lib/format";
+import { fmtPct } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { ComplianceBadge, RiskFlagChip, StateBadge } from "./badges";
 import { WatchStar } from "./watch-star";
-import { SeatIcon } from "@/components/common/seat-icon";
 
 /**
- * Compact, data-first strategy card (exchange / prediction-market style):
- * identity → headline return with risk → mini chart → trust & capacity → price + action.
+ * Copy-trading style strategy card (BingX-like): trader + seats + action on top, a big return with an
+ * area chart in the middle, three key numbers at the bottom.
  */
 export function StrategyCard({ s, className, muted, period }: { s: StrategyWithSpark; className?: string; muted?: boolean; period?: Period }) {
   const short12 = s.metrics.historyDays < 365;
   const pLabel = period ? PERIODS.find((p) => p.value === period)?.label : null;
   const ret = period ? s.perf[period] : short12 ? s.metrics.returnAll : s.metrics.return12m;
-  const retLabel = pLabel ? `Return ${pLabel}` : short12 ? "Return (all)" : "Return 12m";
-  const occ = s.seatsTaken / s.seatsTotal;
+  const retLabel = pLabel ?? (short12 ? "all time" : "1Y");
   const full = s.seatsTaken >= s.seatsTotal;
   const paused = s.state === "paused";
+  const up = ret >= 0;
   return (
     <article
       className={cn(
-        "lift group relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:border-border-strong",
+        "relative flex flex-col rounded-[22px] border border-border bg-surface p-5 transition-colors hover:border-border-strong",
         muted && "opacity-75",
         className,
       )}
     >
-      {/* identity */}
-      <div className="flex items-start gap-3 px-4 pt-4">
-        <Avatar name={s.traderHandle} size={36} />
+      {/* who + seats + action */}
+      <div className="flex items-center gap-3">
+        <Avatar name={s.traderHandle} size={44} className="shrink-0" />
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-[15px] font-semibold leading-5">
-            <Link href={`/strategies/${s.slug}`} className="after:absolute after:inset-0 hover:text-primary-text">
-              {s.name}
-            </Link>
-          </h3>
-          <p className="truncate text-[12px] text-tertiary">
+          <div className="flex items-center gap-1">
+            <h3 className="truncate text-[16px] font-semibold leading-6">
+              <Link prefetch={false} href={`/strategies/${s.slug}`} className="after:absolute after:inset-0 hover:text-primary-text">
+                {s.name}
+              </Link>
+            </h3>
+            <WatchStar id={s.id} name={s.name} size={15} className="size-7 shrink-0" />
+          </div>
+          <p className="truncate text-[12.5px] text-tertiary">
             {s.traderHandle} · {s.venue}
           </p>
         </div>
-        <WatchStar id={s.id} name={s.name} className="-mr-1.5 -mt-1" />
       </div>
 
-      {/* headline numbers */}
-      <div className="mt-3 flex items-end justify-between gap-3 px-4">
+      <div className="mt-2 flex items-center justify-between gap-3">
+        <span className="tnum inline-flex items-center gap-1.5 text-[13px] text-secondary">
+          <Users className="size-4" strokeWidth={1.75} />
+          {s.seatsTaken} / {s.seatsTotal}
+          {full ? <span className="text-tertiary">· {s.waitlist} waiting</span> : null}
+        </span>
+        <Link
+          prefetch={false}
+          href={paused || full ? `/strategies/${s.slug}` : `/seats/${s.slug}`}
+          aria-label={full ? `Join the waitlist for ${s.name}` : `Get a Seat in ${s.name}`}
+          className={cn(
+            "relative z-10 inline-flex h-9 items-center justify-center rounded-full px-5 text-[13.5px] font-semibold transition-colors",
+            paused
+              ? "pointer-events-none bg-bg-muted text-tertiary"
+              : full
+                ? "border border-border-strong text-text hover:bg-bg-subtle"
+                : "bg-primary text-on-primary hover:bg-primary-hover",
+          )}
+        >
+          {paused ? "Paused" : full ? "Waitlist" : "Get seat"}
+        </Link>
+      </div>
+
+      {/* big return + chart */}
+      <div className="mt-4 flex items-end justify-between gap-3">
+        <div className="shrink-0">
+          <div className="text-[12.5px] text-tertiary">Return {retLabel}</div>
+          <div className={cn("tnum mt-1 text-[30px] font-semibold leading-none tracking-tight", up ? "text-up" : "text-down")}>{fmtPct(ret, { sign: true })}</div>
+        </div>
+        <AreaSpark data={s.spark} up={up} id={`sc-${s.id}`} strokeWidth={1.8} className="h-14 w-full max-w-[150px]" />
+      </div>
+
+      {/* key numbers */}
+      <dl className="mt-5 grid grid-cols-3 gap-2 border-t border-border pt-4 text-[12px]">
         <div>
-          <div className="text-[11px] font-medium text-tertiary">{retLabel}</div>
-          <div className="tnum text-[24px] font-bold leading-7">
-            <Delta value={ret} />
-          </div>
+          <dt className="text-tertiary">Max drawdown</dt>
+          <dd className="tnum mt-1 text-[14px] font-semibold">{fmtPct(s.metrics.maxDrawdown)}</dd>
         </div>
-        <dl className="tnum flex gap-4 text-right text-[12px]">
-          <div>
-            <dt className="text-tertiary">Max DD</dt>
-            <dd className="font-semibold">
-              <Pct value={s.metrics.maxDrawdown} />
-            </dd>
-          </div>
-          <div>
-            <dt className="text-tertiary">Sharpe</dt>
-            <dd className="font-semibold">{s.metrics.sharpe.toFixed(2)}</dd>
-          </div>
-        </dl>
-      </div>
-
-      {/* mini chart, edge to edge */}
-      <AreaSpark data={s.spark} height={58} className="mt-2" />
-
-      {/* trust & capacity */}
-      <div className="flex flex-wrap items-center gap-1.5 border-t border-border px-4 pt-3">
-        <span className="relative z-10">
-          <ComplianceBadge strategy={s} short />
-        </span>
-        {s.state !== "active" ? <StateBadge state={s.state} /> : null}
-        {s.flags[0] ? (
-          <span className="relative z-10">
-            <RiskFlagChip flag={s.flags[0]} />
-          </span>
-        ) : null}
-        <span className="tnum ml-auto inline-flex items-center gap-1 text-[12px] text-tertiary">
-          <SeatIcon className="size-3.5" strokeWidth={1.75} aria-hidden />
-          {full ? `Full · ${s.waitlist} waiting` : `${s.seatsTotal - s.seatsTaken} seats left`}
-        </span>
-      </div>
-      <div className="mx-4 mt-2 h-1 overflow-hidden rounded-full bg-bg-muted" aria-hidden>
-        <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, occ * 100)}%` }} />
-      </div>
-
-      {/* price + action */}
-      <div className="mt-auto flex items-center justify-between gap-3 px-4 pb-4 pt-3">
-        <div className="tnum leading-tight">
-          <span className="text-[16px] font-bold">{fmtNumber(priceFrom(s))}</span>{" "}
-          <span className="text-[11px] font-medium text-tertiary">USDC / 30d</span>
+        <div className="text-center">
+          <dt className="text-tertiary">Kept</dt>
+          <dd className="tnum mt-1 text-[14px] font-semibold">
+            {s.compliance.kept}/{s.compliance.settled}
+          </dd>
         </div>
-        {paused ? (
-          // paused: no action — clicks fall through to the card link (strategy page)
-          <span className="inline-flex h-8 items-center rounded-md bg-bg-muted px-3 text-[13px] font-semibold text-tertiary">Paused</span>
-        ) : (
-          <Link
-            href={full ? `/strategies/${s.slug}` : `/seats/${s.slug}`}
-            aria-label={full ? `Join the waitlist for ${s.name}` : `Get a Seat in ${s.name}`}
-            className={cn(
-              "relative z-10 inline-flex h-8 items-center gap-1 rounded-md px-3 text-[13px] font-semibold transition-colors",
-              full ? "border border-border-strong text-text hover:bg-bg-subtle" : "bg-primary text-on-primary hover:bg-primary-hover",
-            )}
-          >
-            {full ? "Waitlist" : "Get seat"}
-            <ArrowRight className="size-3.5 transition-transform group-hover:translate-x-0.5" />
-          </Link>
-        )}
-      </div>
+        <div className="text-right">
+          <dt className="text-tertiary">Seat / 30d</dt>
+          <dd className="mt-1">
+            <Price value={priceFrom(s)} className="font-mono text-[14px] font-semibold" />
+          </dd>
+        </div>
+      </dl>
     </article>
   );
 }

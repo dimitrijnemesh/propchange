@@ -24,7 +24,7 @@ export default function SupportPage() {
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         {topics.map((tp) => (
-          <Link key={tp.title} href={tp.href} className="lift group rounded-xl border border-border bg-surface p-4 shadow-sm transition-colors hover:border-border-strong md:p-5">
+          <Link key={tp.title} prefetch={false} href={tp.href} className="lift group rounded-[22px] border border-border bg-surface p-4 shadow-sm transition-colors hover:border-border-strong md:p-5">
             <tp.icon className="size-6 text-primary-text" strokeWidth={1.75} />
             <div className="mt-3 font-semibold">{tp.title}</div>
             <div className="mt-0.5 text-[13px] text-tertiary">{tp.body}</div>
@@ -33,7 +33,7 @@ export default function SupportPage() {
       </div>
 
       <div className="mt-10 grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <section className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+        <section className="rounded-[22px] border border-border bg-surface p-5 shadow-sm">
           <div className="flex items-center justify-between">
             <h2 className="text-[18px] font-semibold">Popular questions</h2>
             <Link href="/faq" className="inline-flex items-center gap-1 text-[13px] font-semibold text-primary-text hover:underline">
@@ -50,7 +50,7 @@ export default function SupportPage() {
             ))}
           </ul>
         </section>
-        <section id="contact" className="scroll-mt-28 rounded-xl border border-border bg-surface p-5 shadow-sm">
+        <section id="contact" className="scroll-mt-28 rounded-[22px] border border-border bg-surface p-5 shadow-sm">
           <h2 className="flex items-center gap-2 text-[18px] font-semibold">
             <LifeBuoy className="size-5 text-primary-text" strokeWidth={1.75} /> Contact us
           </h2>

@@ -111,7 +111,7 @@ export default async function TraderPage({ params }: { params: Promise<{ handle:
             {closed.map((s) => (
               <div key={s.id} className="flex flex-wrap items-center gap-x-6 gap-y-2 border-b border-border px-5 py-4 text-secondary last:border-b-0">
                 <div className="min-w-[200px] flex-1">
-                  <Link href={`/strategies/${s.slug}`} className="font-semibold text-text hover:text-primary-text">
+                  <Link prefetch={false} href={`/strategies/${s.slug}`} className="font-semibold text-text hover:text-primary-text">
                     {s.name}
                   </Link>
                   <p className="text-caption">{s.closedReason}</p>

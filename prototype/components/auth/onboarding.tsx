@@ -3,7 +3,7 @@ import { CheckCircle2, ChevronLeft, Copy, LineChart, Users, Wallet } from "lucid
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { Address } from "@/components/common/address";
-import { DEMO_WALLET, useApp } from "@/components/layout/providers";
+import { useApp } from "@/components/layout/providers";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -66,7 +66,7 @@ export function Onboarding() {
           <div className="h-full rounded-full bg-primary transition-[width] duration-200" style={{ width: `${((step + 1) / 3) * 100}%` }} />
         </div>
       </div>
-      <div className="rounded-xl border border-border bg-surface p-6 shadow-sm md:p-8">
+      <div className="rounded-[22px] border border-border bg-surface p-6 shadow-sm md:p-8">
         <h1 className="text-h2">{titles[step]}</h1>
 
         {step === 0 ? (
@@ -127,7 +127,7 @@ export function Onboarding() {
               <div className="flex items-center gap-3 rounded-lg bg-success-soft p-4 text-success">
                 <CheckCircle2 className="size-5" />
                 <span className="font-semibold">Wallet connected</span>
-                <Address value={DEMO_WALLET} className="ml-auto text-text" />
+                <Address value={app.walletAddress} className="ml-auto text-text" />
               </div>
             ) : (
               <Button
@@ -141,7 +141,7 @@ export function Onboarding() {
                   setBusy(false);
                 }}
               >
-                {!busy ? <Wallet /> : null} Connect wallet (mock)
+                {!busy ? <Wallet /> : null} Connect wallet
               </Button>
             )}
             {role !== "trader" ? (

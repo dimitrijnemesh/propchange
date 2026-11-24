@@ -54,7 +54,7 @@ function Kpi({
   tone?: "up" | "down" | "warning";
 }) {
   return (
-    <div className="min-w-0 rounded-lg border border-border bg-surface p-4">
+    <div className="min-w-0 rounded-[22px] border border-border bg-surface p-4">
       <div className="flex items-center gap-1.5 text-caption text-secondary">
         <span className="truncate">{label}</span>
         <InfoTip content={info} label={`About ${label}`} />
@@ -76,7 +76,7 @@ function Kpi({
 
 function ChartCard({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
-    <section className="min-w-0 rounded-lg border border-border bg-surface p-5 shadow-sm">
+    <section className="min-w-0 rounded-[22px] border border-border bg-surface p-5 shadow-sm">
       <h3 className="text-h3">{title}</h3>
       {desc ? <p className="mb-4 mt-0.5 text-secondary">{desc}</p> : <div className="mb-4" />}
       {children}
