@@ -40,7 +40,7 @@ export function GlossaryList({ items }: { items: { term: string; id: string; def
         groups.map((g) => (
           <section key={g.l} id={`letter-${g.l}`} className="scroll-mt-40 pt-8">
             <h2 className="text-h2 text-primary-text">{g.l}</h2>
-            <dl className="mt-3 divide-y divide-border rounded-lg border border-border bg-surface">
+            <dl className="mt-3 divide-y divide-border rounded-[22px] border border-border bg-surface">
               {g.list.map((i) => (
                 <div key={i.id} id={i.id} className={cn("group scroll-mt-40 px-5 py-4 target:bg-primary-soft")}>
                   <dt className="flex items-center gap-2 text-[15px] font-semibold">

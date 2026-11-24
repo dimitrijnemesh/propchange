@@ -1,16 +1,18 @@
 "use client";
+import { Price } from "@/components/layout/currency";
 import { ArrowDown, ArrowRight, ArrowUp, ArrowUpDown, Star } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { Avatar, Delta, Pct, Sparkline } from "@/components/common";
-import { ComplianceBadge, StateBadge } from "@/components/market/badges";
+import { KeptText, StateBadge } from "@/components/market/badges";
 import { WatchStar } from "@/components/market/watch-star";
 import { SeatIcon } from "@/components/common/seat-icon";
 import { useT } from "@/components/layout/i18n-provider";
 import { fmtNumber } from "@/lib/format";
 import type { MessageKey } from "@/lib/i18n/messages";
 import { useWatchlist } from "@/lib/watchlist";
+import { useApp } from "@/components/layout/providers";
 import { cn } from "@/lib/utils";
 import type { Market, StrategyState } from "@/types/domain";
 import { PERIODS, type Period } from "@/lib/domain";
@@ -58,7 +60,9 @@ const colValue = (period: Period): Record<Col, (r: MarketRow) => number> => ({
 export function MarketTable({ rows }: { rows: MarketRow[] }) {
   const t = useT();
   const router = useRouter();
-  const favs = useWatchlist();
+  const { loggedIn } = useApp();
+  const watch = useWatchlist();
+  const favs = loggedIn ? watch : [];
   const [tab, setTab] = useState<Tab>("all");
   const [preset, setPreset] = useState<Preset>("smart");
   const [sort, setSort] = useState<{ col: Col; dir: "asc" | "desc" } | null>(null);
@@ -169,7 +173,17 @@ export function MarketTable({ rows }: { rows: MarketRow[] }) {
       {shown.length === 0 ? (
         <div className="flex flex-col items-center gap-2 px-4 py-14 text-center text-[13px] text-tertiary">
           <Star className="size-6" strokeWidth={1.5} />
-          {tab === "fav" ? t("fav.empty") : t("search.noResults")}
+          {tab === "fav" ? (
+            loggedIn ? (
+              t("fav.empty")
+            ) : (
+              <>
+                <Link href="/login" className="font-semibold text-primary-text hover:underline">Log in</Link> to see your Favorites.
+              </>
+            )
+          ) : (
+            t("search.noResults")
+          )}
         </div>
       ) : (
         <>
@@ -178,7 +192,7 @@ export function MarketTable({ rows }: { rows: MarketRow[] }) {
           {shown.map((r) => (
             <li key={r.id} className="flex items-center gap-1 border-t border-border pr-4 first:border-t-0">
               <WatchStar id={r.id} name={r.name} size={15} className="size-9 shrink-0" />
-              <Link href={`/strategies/${r.slug}`} className="flex min-w-0 flex-1 items-center gap-3 py-3">
+              <Link prefetch={false} href={`/strategies/${r.slug}`} className="flex min-w-0 flex-1 items-center gap-3 py-3">
                 <Avatar name={r.traderHandle} size={32} />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[14px] font-semibold">{r.name}</div>
@@ -188,8 +202,8 @@ export function MarketTable({ rows }: { rows: MarketRow[] }) {
                   </div>
                 </div>
                 <div className="shrink-0 text-right">
-                  <div className="tnum text-[14px] font-semibold">{fmtNumber(r.price)}</div>
-                  <div className="text-[11px] text-tertiary">USDC / 30d</div>
+                  <div className="text-[14px] font-semibold"><Price value={r.price} /></div>
+                  <div className="text-[11px] text-tertiary">/ 30d</div>
                 </div>
                 <span
                   className={cn(
@@ -245,7 +259,7 @@ export function MarketTable({ rows }: { rows: MarketRow[] }) {
                         <Avatar name={r.traderHandle} size={30} />
                         <div className="min-w-0">
                           <div className="flex items-center gap-2">
-                            <Link href={`/strategies/${r.slug}`} className="truncate font-semibold hover:text-primary-text">
+                            <Link prefetch={false} href={`/strategies/${r.slug}`} className="truncate font-semibold hover:text-primary-text">
                               {r.name}
                             </Link>
                             {r.state !== "active" ? <StateBadge state={r.state} /> : null}
@@ -257,7 +271,7 @@ export function MarketTable({ rows }: { rows: MarketRow[] }) {
                       </div>
                     </td>
                     <td className="px-3 text-right">
-                      <ComplianceBadge strategy={r} short />
+                      <KeptText strategy={r} />
                     </td>
                     <td className="tnum px-3 text-right font-semibold">
                       <Delta value={r.perf[period]} />
@@ -270,30 +284,32 @@ export function MarketTable({ rows }: { rows: MarketRow[] }) {
                         <Sparkline data={r.spark} width={88} height={28} tone={r.spark[r.spark.length - 1] >= r.spark[0] ? "up" : "down"} />
                       </div>
                     </td>
-                    <td className="tnum px-3 text-right text-[13px]">
-                      <div className="inline-flex items-center gap-1 font-semibold">
-                        <SeatIcon className="size-3.5 text-tertiary" strokeWidth={1.75} aria-hidden />
-                        {r.seatsTaken}
-                        <span className="font-normal text-tertiary"> / {r.seatsTotal}</span>
-                      </div>
-                      <div className="ml-auto mt-1 h-1 w-16 overflow-hidden rounded-full bg-bg-muted">
-                        <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, (r.seatsTaken / r.seatsTotal) * 100)}%` }} />
+                    <td className="px-3">
+                      <div className="ml-auto w-[84px]">
+                        <div className="tnum text-right font-mono text-[13px] font-semibold">
+                          {r.seatsTaken}
+                          <span className="font-normal text-tertiary">/{r.seatsTotal}</span>
+                        </div>
+                        <div className="mt-1 h-1 overflow-hidden rounded-full bg-bg-muted">
+                          <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min(100, (r.seatsTaken / r.seatsTotal) * 100)}%` }} />
+                        </div>
                       </div>
                     </td>
-                    <td className="tnum px-3 text-right font-semibold">{fmtNumber(r.price)}</td>
+                    <td className="px-3 text-right font-mono font-semibold"><Price value={r.price} /></td>
                     <td className="pr-4 text-right">
                       <Link
+                        prefetch={false}
                         href={`/strategies/${r.slug}`}
                         className={cn(
-                          "inline-flex h-8 items-center rounded-md px-3 text-[13px] font-semibold transition-colors",
+                          "inline-flex h-8 w-[92px] items-center justify-center rounded-md text-[13px] font-semibold transition-colors",
                           paused
                             ? "pointer-events-none bg-bg-muted text-tertiary"
                             : full
                               ? "border border-border-strong text-text hover:bg-bg-muted"
-                              : "bg-primary-soft text-primary-soft-text hover:bg-primary hover:text-on-primary",
+                              : "bg-primary text-on-primary hover:bg-primary-hover",
                         )}
                       >
-                        {full ? t("col.waitlist") : t("col.getSeat")}
+                        {paused ? "Paused" : full ? t("col.waitlist") : t("col.getSeat")}
                       </Link>
                     </td>
                   </tr>

@@ -12,7 +12,7 @@ export function FollowersTable({ rows, strategies }: { rows: F[]; strategies: { 
   return (
     <>
       <Pills ariaLabel="Strategy" className="mb-4" value={f} onChange={setF} options={[{ value: "all", label: "All" }, ...strategies.map((s) => ({ value: s.id, label: s.name }))]} />
-      <div className="scroll-thin overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="scroll-thin overflow-x-auto rounded-[22px] border border-border bg-surface">
         <table className="w-full min-w-[720px] text-sm">
           <thead className="bg-bg-subtle text-caption text-secondary">
             <tr>

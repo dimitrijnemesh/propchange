@@ -25,7 +25,7 @@ export default function FaqPage() {
       />
       <FaqBrowser data={faq} />
 
-      <section className="mt-12 rounded-xl border border-border bg-surface p-5 shadow-sm md:p-6">
+      <section className="mt-12 rounded-[22px] border border-border bg-surface p-5 shadow-sm md:p-6">
         <h2 className="text-[18px] font-semibold">Still have questions?</h2>
         <p className="mt-1 text-[14px] text-secondary">Our team and community usually answer within minutes.</p>
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">

@@ -19,7 +19,7 @@ export const accounts: ExchangeAccount[] = [
     label: "Binance · Main",
     equityUsd: 9840.22,
     permissions: { trade: true, withdraw: false, ipWhitelist: true },
-    connectedAt: "2026-04-11",
+    connectedAt: addDays(TODAY, -226),
     status: "ok",
   },
   {
@@ -28,7 +28,7 @@ export const accounts: ExchangeAccount[] = [
     label: "MT5 · IC Markets #5012931",
     equityUsd: 4210.5,
     permissions: { trade: true, withdraw: false, ipWhitelist: false },
-    connectedAt: "2026-06-02",
+    connectedAt: addDays(TODAY, -174),
     status: "warning",
   },
   {
@@ -37,7 +37,7 @@ export const accounts: ExchangeAccount[] = [
     label: "Bybit · Sub-account 2",
     equityUsd: 640,
     permissions: { trade: true, withdraw: false, ipWhitelist: true },
-    connectedAt: "2026-08-19",
+    connectedAt: addDays(TODAY, -96),
     status: "ok",
   },
 ];

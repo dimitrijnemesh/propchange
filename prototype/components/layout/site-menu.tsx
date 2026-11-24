@@ -13,6 +13,7 @@ import { SITE_NAV } from "@/lib/site-nav";
 import { cn } from "@/lib/utils";
 import { useT } from "./i18n-provider";
 import { LanguageSwitcher } from "./language-switcher";
+import { CurrencySwitcher } from "./currency";
 import { ACCOUNT_LINKS, DEMO_USER } from "./account-menu";
 import { useApp } from "./providers";
 import { ThemeToggle } from "./theme-toggle";
@@ -27,13 +28,13 @@ export function SiteMenu() {
   const app = useApp();
   const t = useT();
   const close = () => setOpen(false);
-  const item = "flex h-10 items-center justify-between rounded-md px-3 text-[14px] font-medium text-secondary transition-colors hover:bg-bg-subtle hover:text-text";
+  const item = "flex h-10 items-center justify-between rounded-full px-4 text-[14px] font-medium text-secondary transition-colors hover:bg-bg-subtle hover:text-text";
 
   return (
     <D.Root open={open} onOpenChange={setOpen}>
       <D.Trigger
         aria-label="Open menu"
-        className="inline-flex size-9 items-center justify-center rounded-md text-text hover:bg-bg-muted dark:text-white dark:hover:bg-white/10"
+        className="inline-flex size-9 items-center justify-center rounded-full text-text hover:bg-bg-muted dark:text-white dark:hover:bg-white/10"
       >
         <Menu className="size-5" strokeWidth={1.75} />
       </D.Trigger>
@@ -92,12 +93,6 @@ export function SiteMenu() {
                           >
                             <Icon className="size-4" strokeWidth={1.75} />
                           </span>
-                          {i === 0 ? (
-                            <span className="relative flex size-2" aria-label="live">
-                              <span className="absolute inline-flex size-full animate-ping rounded-full bg-primary opacity-60" />
-                              <span className="relative inline-flex size-2 rounded-full bg-primary" />
-                            </span>
-                          ) : null}
                         </span>
                         <span>
                           <span className={cn("block text-[14px] font-semibold", i === 0 ? "text-primary-soft-text" : "text-text")}>{t(l.label)}</span>
@@ -163,6 +158,10 @@ export function SiteMenu() {
             <div className="flex items-center justify-between rounded-md bg-bg-subtle px-3 py-2">
               <span className="text-[14px] text-secondary">{t("nav.language")}</span>
               <LanguageSwitcher full />
+            </div>
+            <div className="flex items-center justify-between rounded-md bg-bg-subtle px-3 py-2">
+              <span className="text-[14px] text-secondary">Currency</span>
+              <CurrencySwitcher className="text-text dark:text-text dark:hover:bg-bg-muted" />
             </div>
             <div className="flex items-center justify-between rounded-md bg-bg-subtle px-3 py-2">
               <span className="text-[14px] text-secondary">{t("nav.theme")}</span>

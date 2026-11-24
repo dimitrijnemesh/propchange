@@ -50,9 +50,9 @@ export function Logo({
   return (
     <Link href={href} className={cn("inline-flex items-center gap-2", className)} aria-label="PropChange home">
       <LogoMark size={compact ? 17 : 19} />
-      <span className={cn("font-bold tracking-[-0.01em]", compact ? "text-[18px]" : "text-[20px]")}>
-        <span className="text-primary-text">Prop</span>
-        <span className="text-text">Change</span>
+      {/* same Space Grotesk wordmark as the navbar logo */}
+      <span className={cn("font-display font-medium leading-5 tracking-[-0.01em] text-text dark:text-white", compact ? "text-[18px]" : "text-[20px]")}>
+        <span className="text-primary-text dark:text-white">Prop</span>Change
       </span>
     </Link>
   );

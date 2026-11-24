@@ -22,7 +22,7 @@ export function ActivityLog({ entries }: { entries: (RiskLogEntry & { strategyNa
         ]}
         className="mb-5"
       />
-      <div className="rounded-lg border border-border bg-surface p-5">
+      <div className="rounded-[22px] border border-border bg-surface p-5">
         <RiskEngineLog entries={list.slice(0, n)} />
         {n < list.length ? (
           <button onClick={() => setN((x) => x + 15)} className="mt-4 w-full rounded-md bg-bg-subtle py-2.5 font-semibold text-secondary hover:text-text">

@@ -95,14 +95,14 @@ export default async function StrategyPage({
         }
         description={
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <Link href={`/traders/${trader.handle}`} className="flex items-center gap-2 font-semibold text-text hover:text-primary-text">
+            <Link prefetch={false} href={`/traders/${trader.handle}`} className="flex items-center gap-2 font-semibold text-text hover:text-primary-text">
               <Avatar name={trader.handle} size={24} />
               {trader.handle}
             </Link>
             <VerificationBadge trader={trader} />
             <span className="text-tertiary">·</span>
             <span>{s.style}</span>
-            <Link href={`/traders/${trader.handle}`} className="font-semibold text-primary-text hover:underline">
+            <Link prefetch={false} href={`/traders/${trader.handle}`} className="font-semibold text-primary-text hover:underline">
               View trader
             </Link>
           </div>

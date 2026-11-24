@@ -75,7 +75,7 @@ export default function HowItWorks() {
               ].map(([I, t, b]) => {
                 const Icon = I as typeof BarChart3;
                 return (
-                  <div key={t as string} className="rounded-lg border border-border bg-surface p-4">
+                  <div key={t as string} className="rounded-[22px] border border-border bg-surface p-4">
                     <Icon className="size-5 text-primary-text" strokeWidth={1.75} />
                     <div className="mt-3 text-[15px] font-semibold text-text">{t as string}</div>
                     <p className="mt-1 text-[14px] leading-5">{b as string}</p>
@@ -90,7 +90,7 @@ export default function HowItWorks() {
             <p>
               Every follower order moves the market. <b className="text-text">Capacity</b> is the most follower capital a strategy can absorb before slippage eats a third of its edge. It is split into <b className="text-text">Seats</b> — each Seat lets you copy up to a fixed allocation of your own capital.
             </p>
-            <div className="rounded-xl border border-border bg-surface p-5">
+            <div className="rounded-[22px] border border-border bg-surface p-5">
               <SeatsDiagram />
               <p className="mt-3 text-[14px]">
                 Example: Capacity $300,000 ÷ $3,000 per Seat = <b className="text-text">100 Seats</b>. 87 are taken — the price rises as the last ones fill.
@@ -101,7 +101,7 @@ export default function HowItWorks() {
 
           <Section id="contract" n={4} title="The Seat Contract">
             <p>Before each Epoch, a contract is generated from the strategy&apos;s history plus a buffer. The trader may tighten any rule, never loosen it.</p>
-            <div className="rounded-xl border border-border bg-surface px-5 py-2">
+            <div className="rounded-[22px] border border-border bg-surface px-5 py-2">
               {ref.contract.rules.map((r) => (
                 <div key={r.key} className="border-b border-border last:border-0">
                   <RuleRow rule={r} />
@@ -118,7 +118,7 @@ export default function HowItWorks() {
             <p>
               You pay the Seat Fee in USDC on Solana. It sits in an on-chain escrow for the 30-day Epoch. At the end, a signed settlement report releases it — or refunds it.
             </p>
-            <div className="rounded-xl border border-border bg-surface p-4 md:p-6">
+            <div className="rounded-[22px] border border-border bg-surface p-4 md:p-6">
               <EscrowFlowDiagram />
             </div>
             <ul className="space-y-2 text-[15px]">
@@ -136,7 +136,7 @@ export default function HowItWorks() {
                 ["Per strategy", "Breach → stop. Leverage spikes, martingale or rapid drawdown → pause new entries."],
                 ["Per account", "Your daily loss limit, max drawdown, equity floor and one-click kill switch."],
               ].map(([t, b], i) => (
-                <li key={t} className="rounded-lg border border-border bg-surface p-4">
+                <li key={t} className="rounded-[22px] border border-border bg-surface p-4">
                   <span className="tnum flex size-7 items-center justify-center rounded-full bg-primary text-sm font-bold text-on-primary">{i + 1}</span>
                   <div className="mt-3 text-[15px] font-semibold text-text">{t}</div>
                   <p className="mt-1 text-[14px] leading-5">{b}</p>
@@ -148,7 +148,7 @@ export default function HowItWorks() {
 
           <Section id="custody" n={7} title="Your money stays in your account">
             <p>PropChange never holds your trading capital. You connect a trade-only API key — keys with withdrawal permission are rejected automatically.</p>
-            <div className="rounded-xl border border-border bg-surface p-4 md:p-6">
+            <div className="rounded-[22px] border border-border bg-surface p-4 md:p-6">
               <CustodyDiagram />
             </div>
           </Section>

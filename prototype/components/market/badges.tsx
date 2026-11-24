@@ -38,6 +38,20 @@ export function ComplianceBadge({
   );
 }
 
+/** Plain "11/12" for table columns (aligned mono text, tooltip keeps the explanation). */
+export function KeptText({ strategy }: { strategy: Pick<Strategy, "compliance" | "state"> }) {
+  const { kept, settled } = strategy.compliance;
+  const ratio = settled ? kept / settled : 0;
+  return (
+    <Tooltip content={`Seat Contract kept in ${kept} of ${settled} settled Epochs${strategy.state === "rookie" ? " · Rookie stage" : ""}.`}>
+      <span className={cn("tnum font-mono text-[13px] font-semibold", settled && ratio < 0.7 && "text-down")}>
+        {kept}
+        <span className="font-normal text-tertiary">/{settled}</span>
+      </span>
+    </Tooltip>
+  );
+}
+
 const stateMap: Record<StrategyState, { label: string; variant: "success" | "primary" | "warning" | "neutral" | "solid"; icon: React.ElementType }> = {
   active: { label: "Active", variant: "success", icon: CircleDot },
   rookie: { label: "Rookie", variant: "primary", icon: Sparkles },

@@ -17,7 +17,6 @@ export const DEMO_USER = { name: "Sam Rivera", id: "205338571" };
 export const ACCOUNT_LINKS: { href: string; label: MessageKey; icon: React.ElementType }[] = [
   { href: "/app", label: "nav.dashboard", icon: LayoutDashboard },
   { href: "/app/seats", label: "acct.mySeats", icon: SeatIcon },
-  { href: "/app/wallet", label: "acct.wallet", icon: Wallet },
   { href: "/app/activity", label: "acct.activity", icon: Activity },
   { href: "/app/connections", label: "acct.connections", icon: Plug },
   { href: "/app/risk", label: "acct.risk", icon: ShieldCheck },
@@ -70,22 +69,6 @@ export function AccountMenu() {
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5">
             <span className={cn(chip, "bg-bg-muted text-secondary")}>{t("acct.follower")}</span>
-            {app.walletConnected ? (
-              <span className={cn(chip, "bg-primary-soft text-primary-soft-text")}>
-                <Check className="size-3.5" /> {t("acct.walletLinked")}
-              </span>
-            ) : (
-              <M.Item
-                onSelect={async (e) => {
-                  e.preventDefault();
-                  await app.connectWallet();
-                  toast({ kind: "success", title: "Wallet connected", body: "Mock Solana wallet 7xKX…9fQa" });
-                }}
-                className={cn(chip, "cursor-pointer bg-primary text-on-primary outline-none data-[highlighted]:bg-primary-hover")}
-              >
-                {t("acct.linkWallet")} <ChevronRight className="size-3.5" />
-              </M.Item>
-            )}
             <M.Item
               onSelect={() => router.push("/trader")}
               className={cn(chip, "cursor-pointer bg-bg-muted text-secondary outline-none data-[highlighted]:text-text")}

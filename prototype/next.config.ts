@@ -14,6 +14,9 @@ const nextConfig: NextConfig = {
   // Pin the workspace root to this folder (the parent directory has its own lockfile).
   turbopack: { root: process.cwd() },
   poweredByHeader: false,
+  // Demo "today" is frozen at build/start time and inlined for server and client alike,
+  // so mock dates stay fresh without hydration mismatches.
+  env: { NEXT_PUBLIC_DEMO_TODAY: new Date().toISOString().slice(0, 10) },
   async headers() {
     return [{ source: "/(.*)", headers: securityHeaders }];
   },

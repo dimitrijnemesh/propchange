@@ -1,4 +1,5 @@
 "use client";
+import { useAuthGate } from "@/components/auth/auth-gate";
 import {
   AlertTriangle,
   Check,
@@ -18,7 +19,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Address } from "@/components/common/address";
-import { DEMO_WALLET, useApp } from "@/components/layout/providers";
+import { useApp } from "@/components/layout/providers";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -128,6 +129,7 @@ export function SeatPanel({ s, accounts }: { s: SeatStrategy; accounts: Exchange
   const [seats, setSeats] = useState(1);
   const [open, setOpen] = useState(false);
   const toast = useToast();
+  const gate = useAuthGate();
   const occ = s.seatsTaken / s.seatsTotal;
   const full = s.seatsTaken >= s.seatsTotal;
   const paused = s.state === "paused";
@@ -137,7 +139,7 @@ export function SeatPanel({ s, accounts }: { s: SeatStrategy; accounts: Exchange
 
   return (
     <>
-      <section className="rounded-xl border border-border bg-surface p-5 shadow-sm" aria-label="Get a seat">
+      <section className="rounded-[22px] border border-border bg-surface p-5 shadow-sm" aria-label="Get a seat">
         <div className="flex items-baseline justify-between">
           <span className="text-caption text-secondary">Seat price</span>
           <span className="text-caption text-tertiary">{term} days</span>
@@ -201,21 +203,22 @@ export function SeatPanel({ s, accounts }: { s: SeatStrategy; accounts: Exchange
                 size="lg"
                 variant="outline"
                 className="w-full"
-                onClick={() => toast({ kind: "success", title: "Added to waitlist", body: `You are #${s.waitlist + 1} for ${s.name}.` })}
+                onClick={gate.guard(() => toast({ kind: "success", title: "Added to waitlist", body: `You are #${s.waitlist + 1} for ${s.name}.` }))}
               >
                 Join waitlist
               </Button>
-              <Link href={`/seats/${s.slug}`} className={cn(buttonVariants({ variant: "link" }), "w-full justify-center")}>
+              <Link prefetch={false} href={`/seats/${s.slug}`} className={cn(buttonVariants({ variant: "link" }), "w-full justify-center")}>
                 or buy from holders on the Seat Market
               </Link>
             </>
           ) : (
-            <Button size="lg" className="w-full" onClick={() => setOpen(true)}>
+            <Button size="lg" className="w-full" onClick={gate.guard(() => setOpen(true))}>
               <SeatIcon strokeWidth={1.75} /> Get a seat
             </Button>
           )}
         </div>
         <Link
+          prefetch={false}
           href={`/seats/${s.slug}`}
           className="mt-4 flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2.5 text-[13px] font-semibold text-primary-text transition-colors hover:bg-bg-subtle"
         >
@@ -225,6 +228,7 @@ export function SeatPanel({ s, accounts }: { s: SeatStrategy; accounts: Exchange
           <span aria-hidden>→</span>
         </Link>
         <Link
+          prefetch={false}
           href={`/strategies/${s.slug}?tab=simulate`}
           scroll={false}
           className="mt-2 flex items-center justify-between gap-2 rounded-md border border-border px-3 py-2.5 text-[13px] font-semibold text-primary-text transition-colors hover:bg-bg-subtle"
@@ -251,15 +255,16 @@ export function SeatPanel({ s, accounts }: { s: SeatStrategy; accounts: Exchange
         {paused ? (
           <Button disabled>Paused</Button>
         ) : full ? (
-          <Button variant="outline" onClick={() => toast({ kind: "success", title: "Added to waitlist" })}>
+          <Button variant="outline" onClick={gate.guard(() => toast({ kind: "success", title: "Added to waitlist" }))}>
             Join waitlist
           </Button>
         ) : (
-          <Button onClick={() => setOpen(true)}>Get a seat</Button>
+          <Button onClick={gate.guard(() => setOpen(true))}>Get a seat</Button>
         )}
       </div>
 
       <BuySeatDialog open={open} onOpenChange={setOpen} s={s} accounts={accounts} initialTerm={term} initialSeats={seats} />
+      {gate.dialog}
     </>
   );
 }
@@ -604,7 +609,7 @@ export function BuySeatDialog({
                       <span className="flex items-center gap-2 text-secondary">
                         <SolanaMark className="size-3.5" /> Solana wallet
                       </span>
-                      <Address value={DEMO_WALLET} />
+                      <Address value={app.walletAddress} />
                       <span className="tnum text-secondary">{fmtMoney(USDC_BALANCE, { currency: "USDC" })}</span>
                     </div>
                   ) : null}

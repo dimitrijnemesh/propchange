@@ -28,12 +28,14 @@ export default async function FollowerOverview() {
         }
       />
       {p.totals.claimableRefundUsdc ? (
-        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-lg border border-warning/30 bg-warning-soft p-4">
-          <RotateCcw className="size-5 text-warning" />
-          <p className="flex-1 text-[13px]">
-            <b>Refund available:</b> Gold Breakout breached its Seat Contract. {fmtMoney(p.totals.claimableRefundUsdc, { currency: "USDC" })} can be claimed from escrow.
+        <div className="mb-6 flex flex-wrap items-center gap-3 rounded-[22px] border border-[var(--up)]/30 bg-[var(--up)]/10 p-4 pl-5">
+          <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-full bg-[var(--up)]/15 text-up">
+            <RotateCcw className="size-[18px]" />
+          </span>
+          <p className="flex-1 text-[14px]">
+            <b className="text-up">Refund available:</b> Gold Breakout breached its Seat Contract. {fmtMoney(p.totals.claimableRefundUsdc, { currency: "USDC" })} can be claimed from escrow.
           </p>
-          <Link href="/app/wallet" className={buttonVariants({ size: "sm" })}>
+          <Link href="/app/wallet" className={buttonVariants({ size: "sm", className: "bg-[var(--up)] text-white hover:bg-[var(--up)] hover:opacity-90" })}>
             Claim refund
           </Link>
         </div>

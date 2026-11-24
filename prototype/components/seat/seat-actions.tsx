@@ -16,7 +16,7 @@ export function SeatActions({ refunded, slug, name }: { refunded: boolean; slug:
         <Link href="/app/wallet" className={buttonVariants({ size: "sm" })}>
           Claim refund
         </Link>
-        <Link href={`/strategies/${slug}`} className={buttonVariants({ size: "sm", variant: "outline" })}>
+        <Link prefetch={false} href={`/strategies/${slug}`} className={buttonVariants({ size: "sm", variant: "outline" })}>
           View strategy
         </Link>
       </div>

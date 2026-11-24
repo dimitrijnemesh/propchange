@@ -51,7 +51,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
     await sleep(700);
     if (p.wallet) await app.connectWallet();
     app.logIn();
-    router.push(mode === "signup" ? "/onboarding" : "/app");
+    // return to where the user was (e.g. the strategy they tried to buy) when ?next=/path is set
+    const next = new URLSearchParams(window.location.search).get("next");
+    router.push(next && next.startsWith("/") && !next.startsWith("//") ? next : mode === "signup" ? "/onboarding" : "/app");
   };
 
   const tile = (p: Provider) => (
@@ -62,7 +64,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       disabled={!!busy}
       aria-label={`Continue with ${p.label}`}
       className={cn(
-        "inline-flex min-w-0 items-center justify-center gap-2 rounded-lg border border-border bg-surface text-[13.5px] font-semibold transition-colors hover:border-border-strong hover:bg-bg-subtle disabled:opacity-60",
+        "inline-flex min-w-0 items-center justify-center gap-2 rounded-[22px] border border-border bg-surface text-[13.5px] font-semibold transition-colors hover:border-border-strong hover:bg-bg-subtle disabled:opacity-60",
         "h-11 px-2",
       )}
     >

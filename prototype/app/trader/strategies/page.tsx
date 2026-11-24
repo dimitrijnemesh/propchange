@@ -25,7 +25,7 @@ export default async function TraderStrategies() {
           </Link>
         }
       />
-      <div className="scroll-thin overflow-x-auto rounded-lg border border-border bg-surface">
+      <div className="scroll-thin overflow-x-auto rounded-[22px] border border-border bg-surface">
         <table className="w-full min-w-[1000px] text-sm">
           <thead className="bg-bg-subtle text-caption text-secondary">
             <tr>
@@ -46,7 +46,7 @@ export default async function TraderStrategies() {
             {d.strategies.map((s) => (
               <tr key={s.id} className={s.state === "closed" ? "text-secondary" : ""}>
                 <td className="sticky left-0 bg-surface px-4 py-3">
-                  <Link href={`/strategies/${s.slug}`} className="font-semibold text-text hover:text-primary-text">
+                  <Link prefetch={false} href={`/strategies/${s.slug}`} className="font-semibold text-text hover:text-primary-text">
                     {s.name}
                   </Link>
                   <div className="text-caption text-tertiary">

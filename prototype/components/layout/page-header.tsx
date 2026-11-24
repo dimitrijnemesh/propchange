@@ -38,7 +38,7 @@ export function PageHeader({
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-            <h1 className="text-h1">{title}</h1>
+            <h1 className="text-[30px] font-semibold leading-tight tracking-[-0.03em] md:text-[38px]">{title}</h1>
             {badges ? <div className="flex flex-wrap items-center gap-1.5">{badges}</div> : null}
           </div>
           {description ? <div className="mt-2 text-secondary">{description}</div> : null}

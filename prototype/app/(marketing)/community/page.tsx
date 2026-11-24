@@ -3,13 +3,14 @@ import { ArrowUpRight, CalendarDays, Megaphone, ShieldCheck } from "lucide-react
 import { SOCIAL_ICON } from "@/components/common/social-links";
 import { PageHeader } from "@/components/layout/page-header";
 import { SOCIALS } from "@/lib/site-nav";
+import { daysAgoLabel } from "@/mock/nav";
 
 export const metadata: Metadata = { title: "Community", description: "Follow PropChange on X (@propchange_io) and Instagram (@propchange.io)." };
 
 const events = [
-  { date: "Oct 10", title: "Epoch 14 settlement recap", where: "X Spaces · @propchange_io", time: "16:00 UTC" },
-  { date: "Oct 15", title: "Reading a Seat Contract — live walkthrough", where: "X Spaces · @propchange_io", time: "15:00 UTC" },
-  { date: "Oct 22", title: "Trader office hours: listing your first strategy", where: "X Spaces · @propchange_io", time: "14:00 UTC" },
+  { date: daysAgoLabel(-4), title: "Epoch 14 settlement recap", where: "X Spaces · @propchange_io", time: "16:00 UTC" },
+  { date: daysAgoLabel(-9), title: "Reading a Seat Contract — live walkthrough", where: "X Spaces · @propchange_io", time: "15:00 UTC" },
+  { date: daysAgoLabel(-16), title: "Trader office hours: listing your first strategy", where: "X Spaces · @propchange_io", time: "14:00 UTC" },
 ];
 
 const rules = [
@@ -31,7 +32,7 @@ export default function CommunityPage() {
         {SOCIALS.map((s) => {
           const Icon = SOCIAL_ICON[s.key];
           return (
-            <section key={s.key} id={s.key} className="lift flex scroll-mt-28 flex-col rounded-xl border border-border bg-surface p-5 shadow-sm target:border-primary">
+            <section key={s.key} id={s.key} className="lift flex scroll-mt-28 flex-col rounded-[22px] border border-border bg-surface p-5 shadow-sm target:border-primary">
               <div className="flex items-center gap-3">
                 <span className="flex size-11 items-center justify-center rounded-full bg-primary-soft text-primary-soft-text">
                   <Icon className="size-5" strokeWidth={1.75} />
@@ -58,7 +59,7 @@ export default function CommunityPage() {
       </div>
 
       <div className="mt-10 grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <section className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+        <section className="rounded-[22px] border border-border bg-surface p-5 shadow-sm">
           <h2 className="flex items-center gap-2 text-[18px] font-semibold">
             <CalendarDays className="size-5 text-primary-text" strokeWidth={1.75} /> Upcoming events
           </h2>
@@ -79,7 +80,7 @@ export default function CommunityPage() {
             ))}
           </ul>
         </section>
-        <section className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+        <section className="rounded-[22px] border border-border bg-surface p-5 shadow-sm">
           <h2 className="flex items-center gap-2 text-[18px] font-semibold">
             <ShieldCheck className="size-5 text-primary-text" strokeWidth={1.75} /> Community rules
           </h2>

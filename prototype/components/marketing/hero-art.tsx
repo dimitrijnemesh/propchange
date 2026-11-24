@@ -7,9 +7,9 @@ import { MARK_PATHS, MARK_VIEWBOX } from "@/components/layout/mark-paths";
  */
 const ECHOES = [1.06, 1.14, 1.23, 1.33, 1.44, 1.56];
 
-export function HeroArt() {
+export function HeroArt({ contained }: { contained?: boolean } = {}) {
   return (
-    <div aria-hidden className="hero-art pointer-events-none absolute inset-0 overflow-hidden">
+    <div aria-hidden className={`hero-art pointer-events-none absolute inset-0 overflow-hidden${contained ? " hero-art--contained" : ""}`}>
       <svg
         viewBox={MARK_VIEWBOX}
         className="hero-art-svg absolute"

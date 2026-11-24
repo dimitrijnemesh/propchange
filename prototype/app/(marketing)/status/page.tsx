@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { CheckCircle2 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { cn } from "@/lib/utils";
+import { daysAgoLabel } from "@/mock/nav";
 
 export const metadata: Metadata = { title: "System status", description: "Live status of PropChange services and venue connectors." };
 
@@ -22,8 +23,8 @@ function days(seed: number) {
 }
 
 const incidents = [
-  { date: "Sep 28, 2026", title: "Delayed copy fills on Bybit futures", body: "Bybit rate-limited order placement for 14 minutes. Copies queued and filled with a median delay of 2.1s; Risk Engine limits were unaffected.", state: "Resolved" },
-  { date: "Sep 11, 2026", title: "Notifications delayed", body: "Email and push notifications were delayed up to 25 minutes due to a provider outage. In-app notifications were on time.", state: "Resolved" },
+  { date: daysAgoLabel(9, true), title: "Delayed copy fills on Bybit futures", body: "Bybit rate-limited order placement for 14 minutes. Copies queued and filled with a median delay of 2.1s; Risk Engine limits were unaffected.", state: "Resolved" },
+  { date: daysAgoLabel(26, true), title: "Notifications delayed", body: "Email and push notifications were delayed up to 25 minutes due to a provider outage. In-app notifications were on time.", state: "Resolved" },
 ];
 
 export default function StatusPage() {
@@ -40,7 +41,7 @@ export default function StatusPage() {
 
       <div className="mt-8 space-y-6">
         {groups.map((g, gi) => (
-          <section key={g.title} className="rounded-xl border border-border bg-surface shadow-sm">
+          <section key={g.title} className="rounded-[22px] border border-border bg-surface">
             <h2 className="border-b border-border px-5 py-3 font-semibold">{g.title}</h2>
             <ul className="divide-y divide-border">
               {g.items.map((name, i) => {
@@ -80,7 +81,7 @@ export default function StatusPage() {
         <h2 className="text-[18px] font-semibold">Past incidents</h2>
         <ul className="mt-3 space-y-3">
           {incidents.map((i) => (
-            <li key={i.title} className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+            <li key={i.title} className="rounded-[22px] border border-border bg-surface p-5 shadow-sm">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="font-semibold">{i.title}</span>
                 <span className="text-[12.5px] text-tertiary">

@@ -54,9 +54,16 @@ export function seatToken(s: Strategy): SeatToken {
   // order book around the market price; tighter for busy strategies
   const spread = 0.006 + (1 - Math.min(1, s.seatsTraded30d / 60)) * 0.012;
   const mid = q.marketPrice;
-  const lvl = (i: number, dir: 1 | -1) => r2(mid * (1 + dir * (spread / 2 + i * (0.004 + rand() * 0.004))));
-  const asks = q.tradable ? Array.from({ length: 9 }, (_, i) => ({ price: lvl(i, 1), qty: 1 + Math.floor(rand() * (i < 2 ? 4 : 9)) })) : [];
-  const bids = q.tradable ? Array.from({ length: 9 }, (_, i) => ({ price: lvl(i, -1), qty: 1 + Math.floor(rand() * (i < 2 ? 5 : 11)) })) : [];
+  // cumulative steps so price levels are strictly ordered away from the mid
+  const ladder = (dir: 1 | -1, maxQty: (i: number) => number) => {
+    let off = spread / 2;
+    return Array.from({ length: 9 }, (_, i) => {
+      if (i > 0) off += 0.004 + rand() * 0.004;
+      return { price: r2(mid * (1 + dir * off)), qty: 1 + Math.floor(rand() * maxQty(i)) };
+    });
+  };
+  const asks = q.tradable ? ladder(1, (i) => (i < 2 ? 4 : 9)) : [];
+  const bids = q.tradable ? ladder(-1, (i) => (i < 2 ? 5 : 11)) : [];
 
   // recent fills, newest first: a random walk that ends at the market price
   const now = new Date(TODAY + "T15:30:00Z").getTime();

@@ -40,7 +40,7 @@ export default async function AboutPage() {
       </dl>
       <div className="mt-10 grid gap-4 md:grid-cols-3">
         {principles.map((p) => (
-          <section key={p.title} className="rounded-xl border border-border bg-surface p-5 shadow-sm">
+          <section key={p.title} className="rounded-[22px] border border-border bg-surface p-5 shadow-sm">
             <p.icon className="size-6 text-primary-text" strokeWidth={1.75} />
             <h2 className="mt-3 text-[17px] font-semibold">{p.title}</h2>
             <p className="mt-1.5 text-[14px] text-secondary">{p.body}</p>

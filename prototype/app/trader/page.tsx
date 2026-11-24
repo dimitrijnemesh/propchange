@@ -50,7 +50,7 @@ export default async function TraderOverview() {
                 <b>{s.name}:</b> {r.label.toLowerCase()} at {r.current} — {Math.round(r.usage * 100)}% of the {r.limit} limit.{" "}
                 {s.state === "paused" ? "Strategy paused after breach." : "Reduce risk to keep this Epoch."}
               </p>
-              <Link href={`/strategies/${s.slug}?tab=contract`} className="text-[13px] font-semibold text-primary-text hover:underline">
+              <Link prefetch={false} href={`/strategies/${s.slug}?tab=contract`} className="text-[13px] font-semibold text-primary-text hover:underline">
                 View contract
               </Link>
             </div>
@@ -101,7 +101,7 @@ export default async function TraderOverview() {
             <Card key={s.id} className="p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <Link href={`/strategies/${s.slug}`} className="text-[15px] font-semibold hover:text-primary-text">
+                  <Link prefetch={false} href={`/strategies/${s.slug}`} className="text-[15px] font-semibold hover:text-primary-text">
                     {s.name}
                   </Link>
                   <div className="mt-1 flex gap-1.5">

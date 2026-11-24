@@ -1,20 +1,33 @@
 "use client";
-import { createColumnHelper, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { Price } from "@/components/layout/currency";
+import { createColumnHelper, getCoreRowModel, useReactTable, type CellContext, type HeaderContext } from "@tanstack/react-table";
 import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Avatar, Delta, Pct, Sparkline } from "@/components/common";
+import { memo, useMemo } from "react";
+import { Avatar, Delta, Pct } from "@/components/common";
 import { buttonVariants } from "@/components/ui/button";
 import { Tooltip } from "@/components/ui/tooltip";
 import { PERIODS, priceFrom, type StrategyWithSpark } from "@/lib/domain";
-import { fmtNumber } from "@/lib/format";
+
 import { cn } from "@/lib/utils";
-import { ComplianceBadge, MarketBadges, RiskFlagChip, RiskScoreBadge, StateBadge } from "./badges";
-import { SeatMeter } from "./seat-meter";
+
+
 
 const col = createColumnHelper<StrategyWithSpark & { rank: number }>();
 
-export function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]; leaderboard?: boolean }) {
+type Row = StrategyWithSpark & { rank: number };
+
+/**
+ * Render a header/cell definition by calling it as a plain function. `flexRender` mounts inline
+ * functions as components, so every re-render created new component types and React re-mounted
+ * every cell (Links, tooltips) — which re-triggered router updates and looped forever.
+ */
+function render<C>(def: unknown, ctx: C): React.ReactNode {
+  return typeof def === "function" ? (def as (c: C) => React.ReactNode)(ctx) : (def as React.ReactNode);
+}
+
+export const StrategyTable = memo(function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]; leaderboard?: boolean }) {
   const periodLabel = PERIODS.find((p) => p.value === (rows[0]?.period ?? "1y"))?.label ?? "1Y";
   const router = useRouter();
   const path = usePathname();
@@ -22,6 +35,7 @@ export function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]
   const sort = sp.get("sort") ?? "compliance";
   const dir = sp.get("dir");
 
+  const columns = useMemo(() => {
   const sortHeader = (key: string, label: string, tip?: string) => {
     const on = sort === key;
     const Icon = on ? (dir === "asc" ? ArrowUp : ArrowDown) : ArrowUpDown;
@@ -45,7 +59,7 @@ export function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]
     return tip ? <Tooltip content={tip} asChild>{btn}</Tooltip> : btn;
   };
 
-  const columns = [
+  return [
     ...(leaderboard
       ? [
           col.accessor("rank", {
@@ -58,31 +72,17 @@ export function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]
       header: "Strategy",
       cell: ({ row: { original: s } }) => (
         <div className="flex min-w-[220px] items-start gap-3 py-1">
-          <Avatar name={s.traderHandle} size={32} />
+          <Avatar name={s.traderHandle} size={38} />
           <div className="min-w-0">
-            <Link href={`/strategies/${s.slug}`} className="font-semibold hover:text-primary-text">
+            <Link prefetch={false} href={`/strategies/${s.slug}`} className="font-semibold hover:text-primary-text">
               {s.name}
             </Link>
-            <div className="mt-0.5 flex flex-wrap items-center gap-1.5 text-caption text-tertiary">
-              <span>{s.traderHandle}</span>
-              <MarketBadges markets={s.markets} />
-              {s.state !== "active" ? <StateBadge state={s.state} /> : null}
+            <div className="mt-0.5 truncate text-caption text-tertiary">
+              {s.traderHandle} · <span className="capitalize">{s.markets.join(", ")}</span>
             </div>
-            {s.flags.length ? (
-              <div className="mt-1.5 flex flex-wrap gap-1">
-                {s.flags.slice(0, 2).map((f) => (
-                  <RiskFlagChip key={f} flag={f} />
-                ))}
-              </div>
-            ) : null}
           </div>
         </div>
       ),
-    }),
-    col.display({
-      id: "compliance",
-      header: () => sortHeader("compliance", "Compliance", "Share of settled Epochs where the Seat Contract was kept"),
-      cell: ({ row: { original: s } }) => <ComplianceBadge strategy={s} short />,
     }),
     col.display({
       id: "return",
@@ -109,40 +109,19 @@ export function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]
       cell: ({ row: { original: s } }) => <Pct value={s.metrics.maxDrawdown} className="font-semibold" />,
     }),
     col.display({
-      id: "sharpe",
-      header: () => sortHeader("sortino", "Sharpe / Sortino"),
-      cell: ({ row: { original: s } }) => (
-        <span className="tnum">
-          <b>{s.metrics.sharpe.toFixed(2)}</b>
-          <span className="text-tertiary"> / {s.metrics.sortino.toFixed(2)}</span>
-        </span>
-      ),
-    }),
-    col.display({
-      id: "risk",
-      header: () => <span className="ml-auto">Risk</span>,
-      cell: ({ row: { original: s } }) => <RiskScoreBadge score={s.metrics.riskScore} withLabel={false} />,
-    }),
-    col.display({
-      id: "spark",
-      header: () => <span className="ml-auto">{["24h", "7d"].includes(rows[0]?.period ?? "") ? "7d" : periodLabel}</span>,
-      cell: ({ row: { original: s } }) => <Sparkline data={s.spark} tone={s.spark[s.spark.length - 1] >= s.spark[0] ? "primary" : "down"} />,
-    }),
-    col.display({
       id: "seats",
       header: () => sortHeader("occupancy", "Seats"),
-      cell: ({ row: { original: s } }) => (
-        <div className="ml-auto w-[96px]">
-          <SeatMeter size="sm" taken={s.seatsTaken} total={s.seatsTotal} />
-        </div>
-      ),
+      cell: ({ row: { original: s } }) => {
+        const free = Math.max(0, s.seatsTotal - s.seatsTaken);
+        return <span className="tnum whitespace-nowrap">{free > 0 ? <span className="text-secondary">{free} free</span> : <span className="text-tertiary">Full</span>}</span>;
+      },
     }),
     col.display({
       id: "price",
       header: () => sortHeader("price", "Price from"),
       cell: ({ row: { original: s } }) => (
         <span className="tnum whitespace-nowrap">
-          <b>{fmtNumber(priceFrom(s))}</b> <span className="text-caption text-tertiary">USDC</span>
+          <Price value={priceFrom(s)} className="font-mono font-semibold" />
         </span>
       ),
     }),
@@ -150,15 +129,29 @@ export function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]
       id: "action",
       header: () => <span className="sr-only">Action</span>,
       cell: ({ row: { original: s } }) => (
-        <Link href={`/strategies/${s.slug}`} className={buttonVariants({ variant: "outline", size: "sm" })}>
-          View
+        <Link
+          prefetch={false}
+          href={`/strategies/${s.slug}`}
+          className={cn(
+            "inline-flex h-9 w-[100px] items-center justify-center rounded-full text-[13px] font-semibold transition-colors",
+            s.state === "paused"
+              ? "pointer-events-none bg-bg-muted text-tertiary"
+              : s.seatsTaken >= s.seatsTotal
+                ? "border border-border-strong text-text hover:bg-bg-muted"
+                : "bg-primary text-on-primary hover:bg-primary-hover",
+          )}
+        >
+          {s.state === "paused" ? "Paused" : s.seatsTaken >= s.seatsTotal ? "Waitlist" : "Get seat"}
         </Link>
       ),
     }),
   ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [leaderboard, periodLabel, sort, dir, path, sp.toString(), rows[0]?.period]);
 
+  const data = useMemo(() => rows.map((r, i) => ({ ...r, rank: i + 1 })), [rows]);
   const table = useReactTable({
-    data: rows.map((r, i) => ({ ...r, rank: i + 1 })),
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -166,22 +159,22 @@ export function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]
   const firstSticky = leaderboard ? 1 : 0;
 
   return (
-    <div className="scroll-thin overflow-x-auto rounded-lg border border-border bg-surface">
-      <table className="w-full min-w-[1100px] border-collapse text-sm">
+    <div className="scroll-thin overflow-x-auto rounded-[22px] border border-border bg-surface">
+      <table className="w-full min-w-[760px] border-collapse text-[14px]">
         <thead className="sticky top-0 z-10">
           {table.getHeaderGroups().map((hg) => (
-            <tr key={hg.id} className="bg-bg-subtle text-caption text-secondary">
+            <tr key={hg.id} className="border-b border-border text-[12.5px] text-tertiary">
               {hg.headers.map((h, i) => (
                 <th
                   key={h.id}
                   className={cn(
-                    "h-10 whitespace-nowrap px-4 text-right font-medium first:text-left",
-                    i === firstSticky && "sticky left-0 z-10 bg-bg-subtle text-left",
+                    "h-11 whitespace-nowrap px-4 text-right font-medium first:pl-5 first:text-left last:pr-5",
+                    i === firstSticky && "sticky left-0 z-10 bg-surface text-left",
                     i < firstSticky && "w-10 text-left",
                   )}
                 >
                   <div className={cn("flex", i <= firstSticky ? "justify-start" : "justify-end")}>
-                    {flexRender(h.column.columnDef.header, h.getContext())}
+                    {render<HeaderContext<Row, unknown>>(h.column.columnDef.header, h.getContext())}
                   </div>
                 </th>
               ))}
@@ -192,7 +185,7 @@ export function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]
           {table.getRowModel().rows.map((row) => (
             <tr
               key={row.id}
-              className="group cursor-pointer border-t border-border transition-colors hover:bg-bg-muted"
+              className="group cursor-pointer transition-colors hover:bg-bg-subtle"
               onClick={(e) => {
                 if ((e.target as HTMLElement).closest("a,button")) return;
                 router.push(`/strategies/${row.original.slug}`);
@@ -202,13 +195,13 @@ export function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]
                 <td
                   key={cell.id}
                   className={cn(
-                    "h-12 px-4 py-2 text-right align-middle",
-                    i === firstSticky && "sticky left-0 z-[1] bg-surface text-left group-hover:bg-bg-muted",
+                    "h-[72px] px-4 text-right align-middle first:pl-5 last:pr-5",
+                    i === firstSticky && "sticky left-0 z-[1] bg-surface text-left group-hover:bg-bg-subtle",
                     i < firstSticky && "text-left",
                   )}
                 >
                   <div className={cn("flex items-center", i <= firstSticky ? "justify-start" : "justify-end")}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    {render<CellContext<Row, unknown>>(cell.column.columnDef.cell, cell.getContext())}
                   </div>
                 </td>
               ))}
@@ -218,4 +211,4 @@ export function StrategyTable({ rows, leaderboard }: { rows: StrategyWithSpark[]
       </table>
     </div>
   );
-}
+});

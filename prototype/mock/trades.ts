@@ -1,3 +1,4 @@
+import { TODAY } from "./nav";
 import { gaussian, mulberry32 } from "@/lib/rng";
 import type { Strategy } from "@/types/domain";
 
@@ -36,7 +37,7 @@ export function generateTrades(s: Strategy): Trade[] {
   const baseRisk = 0.3 + (m.riskScore / 100) * 1.1; // % equity
   const meanLossR = 0.86;
   const meanPlannedRR = (m.payoffRatio * meanLossR) / 0.82;
-  const end = new Date((s.closedAt ?? "2026-10-06") + "T20:00:00Z").getTime();
+  const end = new Date((s.closedAt ?? TODAY) + "T20:00:00Z").getTime();
   const spanMs = Math.min(m.historyDays, Math.max(30, (n / m.trades) * m.historyDays)) * 86_400_000;
   const weights = s.instrumentPnl.map((x) => Math.max(5, x.pnlPct));
   const wSum = weights.reduce((a, b) => a + b, 0);

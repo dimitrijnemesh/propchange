@@ -5,7 +5,7 @@ import type { Strategy } from "@/types/domain";
 export function CapacityPanel({ s }: { s: Strategy }) {
   const rookie = s.state === "rookie";
   return (
-    <section className="rounded-lg border border-border bg-surface p-5 shadow-sm">
+    <section className="rounded-[22px] border border-border bg-surface p-5 shadow-sm">
       <div className="flex items-center gap-2">
         <Gauge className="size-4 text-primary-text" strokeWidth={1.75} />
         <h3 className="text-h3">Capacity</h3>
