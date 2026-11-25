@@ -46,9 +46,16 @@ interface PhantomProvider {
   connect(opts?: { onlyIfTrusted?: boolean }): Promise<{ publicKey: { toString(): string } }>;
   disconnect(): Promise<void>;
 }
-/** Phantom's injected Solana provider, if the extension is installed. */
+/**
+ * Real wallet connect is OFF until the devnet program exists (Dev3pack, from 27 Nov): the prototype uses the
+ * demo wallet only. Other extensions (e.g. OKX) also report `isPhantom`, so turning this on needs a proper
+ * wallet adapter, not just the injected provider.
+ */
+export const REAL_WALLET = false;
+
+/** Phantom's injected Solana provider, if the extension is installed (and real wallets are enabled). */
 export const getPhantom = (): PhantomProvider | undefined => {
-  if (typeof window === "undefined") return undefined;
+  if (!REAL_WALLET || typeof window === "undefined") return undefined;
   const w = window as unknown as { phantom?: { solana?: PhantomProvider }; solana?: PhantomProvider };
   const p = w.phantom?.solana ?? w.solana;
   return p?.isPhantom ? p : undefined;

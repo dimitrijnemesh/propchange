@@ -1,0 +1,8 @@
+.next-prod
+.next
+.claude
+land-*.png
+.env
+.env.*
+!.env.example
+node_modules

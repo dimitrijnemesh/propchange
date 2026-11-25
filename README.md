@@ -65,7 +65,7 @@ nobody is accountable. PropChange makes the trader accountable: no rules kept, n
   monthly returns, risk flags and the full contract history (kept / breached) per Epoch.
 - **Follower and trader areas.** Active Seats, escrow, refunds and Risk Engine activity for followers;
   earnings, upcoming settlements and contract health for traders.
-- **Also:** Phantom wallet connect, light / dark theme, 13 languages, prices in USD / EUR / UAH.
+- **Also:** demo wallet flow (real Solana wallets arrive with the devnet program), light / dark theme, 13 languages, prices in USD / EUR / UAH.
 
 ## How a Seat works
 
@@ -84,7 +84,7 @@ flowchart LR
 |---|---|
 | Web app — landing, market, analytics, trading screen, follower & trader areas | ✅ Live at [propchange.vercel.app](https://propchange.vercel.app) |
 | Data | Demo data from a deterministic mock layer (`prototype/lib/mock-api.ts`) — no real money |
-| Wallet | Phantom connect; falls back to a demo wallet when Phantom isn't installed |
+| Wallet | Demo wallet only; a real Solana wallet adapter (Phantom) comes with the devnet program |
 | Solana program — Seat mint, USDC escrow, settle / refund | 🛠 Building on devnet during Dev3pack |
 
 ## Repository map
@@ -101,7 +101,7 @@ flowchart LR
 ### A. Just try it
 
 Open https://propchange.vercel.app. Browsing needs no account; to trade a Seat, sign up (demo account) and
-connect Phantom — or use the built-in demo wallet if Phantom isn't installed.
+connect the built-in demo wallet. Everything runs on demo data — no real wallet or money is involved.
 
 ### B. Run the web app locally
 

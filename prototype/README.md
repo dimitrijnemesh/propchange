@@ -3,9 +3,8 @@
 Strategy marketplace with Seat Contracts: browse strategies, buy limited Seats, copy into your own exchange
 account under an independent Risk Engine. Built from `FRONTEND_DESIGN.md` v1.0 and `PROJECT_CONTEXT.md` v2.0.
 
-Data comes from a deterministic mock layer (`lib/mock-api.ts`), so there is no backend, payment or API-key
-handling yet. Swapping in a real API only touches that file. Wallet connect uses Phantom when it is installed
-and falls back to a demo wallet otherwise.
+Data comes from a deterministic mock layer (`lib/mock-api.ts`), so there is no backend, wallet, payment or
+API-key handling yet. Swapping in a real API only touches that file.
 
 ## Run locally
 
