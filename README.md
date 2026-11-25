@@ -13,7 +13,7 @@
   <a href="https://propchange.vercel.app"><img alt="Live app" src="https://img.shields.io/badge/live-propchange.vercel.app-3b63ff?style=flat-square" /></a>
   <img alt="Solana" src="https://img.shields.io/badge/Solana-devnet-14F195?style=flat-square&logo=solana&logoColor=white" />
   <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs" />
-  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" />
+  <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-7-3178C6?style=flat-square&logo=typescript&logoColor=white" />
   <img alt="Dev3pack" src="https://img.shields.io/badge/Dev3pack-Global%20Hackathon%202026-8b5cf6?style=flat-square" />
 </p>
 
