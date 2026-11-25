@@ -95,9 +95,11 @@ Token-2022 design for Seats, USDC) · Vercel
 
 This project is entered in the Dev3pack Global Hackathon (27–29 Nov 2026).
 
-- **Built before the hackathon:** everything in this repository up to and including commit `4b8a4c3`
-  (web app, landing, design).
-- **Built during the hackathon:** tracked in commits after that point and listed here as they land.
+- **Built before the hackathon:** everything up to the git tag
+  [`pre-dev3pack`](https://github.com/dimitrijnemesh/propchange/tree/pre-dev3pack) (web app, landing, design) —
+  screenshots of that state: [`docs/before-hackathon`](docs/before-hackathon).
+- **Built during the hackathon:** every commit after the tag —
+  [compare `pre-dev3pack...main`](https://github.com/dimitrijnemesh/propchange/compare/pre-dev3pack...main).
 
 ## Team
 
