@@ -1,8 +1,12 @@
 import { SeatTrends } from "@/components/home/seat-trends";
-import { CtaBanner, FactsStrip, FaqSection, HowItWorksCards } from "@/components/home/landing-sections";
+import { CtaBanner, FactsStrip, FaqSection, HowItWorksCards, InvestorsSection, WhySolana } from "@/components/home/landing-sections";
+import { ProductRows } from "@/components/home/product-rows";
+import { RefundCalculator } from "@/components/home/refund-calculator";
+import { SeatFinder } from "@/components/home/seat-finder";
 import { TopicBar } from "@/components/home/topic-bar";
 import { HomeHero } from "@/components/home/home-hero";
 import { AppShowcase } from "@/components/home/app-showcase";
+import { ScrollReveal } from "@/components/home/scroll-reveal";
 import { cookies } from "next/headers";
 import { Accordion } from "@/components/ui/accordion";
 import { getT } from "@/lib/i18n/server";
@@ -33,21 +37,31 @@ export default async function Home() {
   const trends = seatMkt.boards.hot.slice(0, 3);
   const trending = seatMkt.boards.hot.slice(0, 5);
   const fresh = live.filter((r) => r.state === "rookie").slice(0, 5);
+  const popular = [...live].sort((a, b) => b.seatsTraded30d - a.seatsTraded30d).slice(0, 6);
   const gainers = [...live].sort((a, b) => b.seatPrice7dChange - a.seatPrice7dChange).slice(0, 5);
 
   return (
     <>
       <TopicBar counts={counts} />
       <HomeHero initialLoggedIn={authed} />
+      <ScrollReveal />
+      {/* everything below slides over the pinned hero */}
+      <div className="home-overlay">
+      <SeatTrends trends={trends} trending={popular} fresh={fresh} gainers={gainers} />
       <FactsStrip />
-      <SeatTrends trends={trends} trending={trending} fresh={fresh} gainers={gainers} />
       <HowItWorksCards />
+      <RefundCalculator />
+      <SeatFinder rows={live} />
+      <ProductRows />
       <AppShowcase hot={trending} gainers={gainers} />
+      <WhySolana />
+      <InvestorsSection />
 
       <CtaBanner loggedIn={authed} />
       <FaqSection title={t("home.faq")} viewAll={t("home.viewAll")}>
         <Accordion items={faq} />
       </FaqSection>
+      </div>
     </>
   );
 }

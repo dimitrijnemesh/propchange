@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Mail, Smartphone } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useApp } from "@/components/layout/providers";
@@ -43,8 +43,19 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const {
     register,
     handleSubmit,
+    setValue,
+    setFocus,
     formState: { errors },
   } = useForm<Values>({ resolver: zodResolver(schema) });
+
+  // email typed on the landing hero arrives as ?email=… — prefill it and move on to the password
+  useEffect(() => {
+    const email = new URLSearchParams(window.location.search).get("email");
+    if (email) {
+      setValue("email", email);
+      setFocus("password");
+    }
+  }, [setValue, setFocus]);
 
   const finish = async (p: { key: string; wallet?: boolean }) => {
     setBusy(p.key);
@@ -64,8 +75,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       disabled={!!busy}
       aria-label={`Continue with ${p.label}`}
       className={cn(
-        "inline-flex min-w-0 items-center justify-center gap-2 rounded-[22px] border border-border bg-surface text-[13.5px] font-semibold transition-colors hover:border-border-strong hover:bg-bg-subtle disabled:opacity-60",
-        "h-11 px-2",
+        "inline-flex min-w-0 items-center justify-center gap-2 rounded-full border border-border bg-surface text-[14px] font-semibold transition-colors hover:border-border-strong hover:bg-bg-subtle disabled:opacity-60",
+        "h-12 px-3",
       )}
     >
       {busy === p.key ? <Loader2 className="size-5 animate-spin text-tertiary" /> : <p.icon className="size-5" />}
@@ -86,7 +97,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <span className="h-px flex-1 bg-border" /> or continue with <span className="h-px flex-1 bg-border" />
       </div>
 
-      <div className="grid grid-cols-2 gap-1 rounded-lg bg-bg-muted p-1" role="tablist" aria-label="Sign-in method">
+      <div className="grid grid-cols-2 gap-1 rounded-full bg-bg-muted p-1" role="tablist" aria-label="Sign-in method">
         {(["email", "phone"] as const).map((k) => (
           <button
             key={k}
@@ -95,7 +106,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             aria-selected={via === k}
             onClick={() => setVia(k)}
             className={cn(
-              "inline-flex h-8 items-center justify-center gap-1.5 rounded-md text-[13px] font-semibold transition-colors",
+              "inline-flex h-9 items-center justify-center gap-1.5 rounded-full text-[13.5px] font-semibold transition-colors",
               via === k ? "bg-surface text-text shadow-sm" : "text-tertiary hover:text-text",
             )}
           >
@@ -117,7 +128,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               autoComplete={via === "email" ? "email" : "tel-national"}
               placeholder={via === "email" ? "you@example.com" : "00 000 0000"}
               invalid={!!errors.email}
-              className="min-w-0 flex-1"
+              className="h-12 min-w-0 flex-1 rounded-xl px-4 text-[15px]"
               {...register("email")}
             />
           </div>
@@ -132,7 +143,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
               </a>
             ) : null}
           </div>
-          <Input id="password" type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} invalid={!!errors.password} {...register("password")} />
+          <Input className="h-12 rounded-xl px-4 text-[15px]" id="password" type="password" autoComplete={mode === "login" ? "current-password" : "new-password"} invalid={!!errors.password} {...register("password")} />
           <FieldError>{errors.password?.message}</FieldError>
         </div>
         <Button type="submit" size="lg" className="w-full" loading={busy === "form"} disabled={!!busy}>

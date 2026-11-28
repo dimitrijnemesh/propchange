@@ -21,7 +21,7 @@ export function MarketBanner({
   return (
     <section className={cn("border-b border-border", className)}>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-[24px] font-semibold leading-8 tracking-[-0.01em]">{title}</h1>
+        <h1 className="text-[34px] font-bold leading-[1.05] tracking-[-0.045em] md:text-[48px]">{title}</h1>
         {actions ? <div className="flex shrink-0 flex-wrap gap-2">{actions}</div> : null}
       </div>
       <dl className="scroll-thin mt-3 flex gap-8 overflow-x-auto pb-4">

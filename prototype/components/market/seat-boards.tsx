@@ -17,8 +17,8 @@ function Board({
   metric: (r: SeatRow) => React.ReactNode;
 }) {
   return (
-    <section className="min-w-0 rounded-[28px] border border-border bg-surface p-6">
-      <h3 className="flex items-center gap-3 text-[19px] font-semibold">
+    <section className="lift min-w-0 rounded-[28px] bg-surface p-6 ring-1 ring-border">
+      <h3 className="flex items-center gap-3 text-[20px] font-bold tracking-[-0.02em]">
         <span className="inline-flex size-9 items-center justify-center rounded-full bg-primary/15 text-primary-text">
           <I className="size-[18px]" strokeWidth={2} />
         </span>
@@ -59,7 +59,7 @@ export function SeatBoards({
         rows={hot}
         metric={(r) => (
           <span className="flex flex-col items-end gap-1">
-            <Price value={r.price} className="font-mono text-[15px]" />
+            <Price value={r.price} className="text-[16px] font-semibold tracking-[-0.025em]" />
             <ChangePill v={r.seatPrice7dChange} />
           </span>
         )}

@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUpDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { AreaSpark, ChangePill } from "@/components/common/area-spark";
+import { LivePrice } from "@/components/common/live-price";
 import { Avatar, Delta, Sparkline } from "@/components/common";
 import { Pills } from "@/components/ui/tabs";
 import type { SeatRow } from "@/lib/mock-api";
@@ -117,7 +118,7 @@ export function SeatMarketTable({ rows }: { rows: SeatRow[] }) {
                     </div>
                   </td>
                   <td className="tnum px-4 text-right">
-                    <Price value={s.marketPrice} className="font-mono font-semibold" />
+                    <LivePrice value={s.marketPrice} className="font-semibold" />
                   </td>
                   <td className="px-4 text-right">
                     <ChangePill v={s.seatPrice7dChange} />

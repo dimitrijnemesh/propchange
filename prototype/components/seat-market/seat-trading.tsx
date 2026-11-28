@@ -6,6 +6,7 @@ import { SolanaBadge } from "@/components/common/solana-mark";
 import { OnchainCard } from "./onchain-card";
 import { SeatChart } from "./seat-chart";
 import { useAuthGate } from "@/components/auth/auth-gate";
+import { DevnetPanel } from "./devnet-panel";
 import { getPhantom, shortAddress, useApp } from "@/components/layout/providers";
 import { useToast } from "@/components/ui/toast";
 import { shortAddr } from "@/lib/format";
@@ -368,6 +369,8 @@ export function SeatTrading({ token, owned }: { token: SeatToken; owned: number 
           ) : null}
         </section>
 
+        {/* the one Seat that is live on Solana devnet */}
+        {token.slug === "alt-momentum-x" ? <DevnetPanel /> : null}
         <OnchainCard token={token} />
       </aside>
 

@@ -61,7 +61,13 @@ export function SeatCard({ seat, strategy: s, account }: { seat: Seat; strategy:
         ) : (
           <EscrowStatus compact until={seat.epochEnd} className="self-start" />
         )}
-        <SeatActions refunded={refunded} slug={s.slug} name={s.name} />
+        <SeatActions
+          refunded={refunded}
+          slug={s.slug}
+          name={s.name}
+          refund={seat.escrowUsdc || seat.paidUsdc}
+          rule={breachRule(s)}
+        />
       </footer>
     </article>
   );
@@ -75,4 +81,10 @@ function Stat({ label, value, sub }: { label: string; value: React.ReactNode; su
       {sub ? <div className="text-caption text-tertiary">{sub}</div> : null}
     </div>
   );
+}
+
+/** The contract's first hard limit, phrased as the breach the demo simulates. */
+function breachRule(s: Strategy) {
+  const r = s.contract.rules.find((x) => x.key === "max_dd") ?? s.contract.rules[0];
+  return r ? `${r.label} went over the ${r.limit} limit.` : "A Seat Contract limit was broken.";
 }

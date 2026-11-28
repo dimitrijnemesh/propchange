@@ -1,0 +1,14 @@
+{
+  "cluster": "devnet",
+  "escrow": "FMpGes9KgWbSn1oisHyXawiiGcMvZddx6JbcqNDa4HRL",
+  "escrowUsdcAccount": "Hn4DPZ66oX5DaADh1j4LQg9chTX8Jm2odEfnbCPK3waq",
+  "usdcMint": "2E8nRAkBfsoHeomhMHKhkbHnPEE4UVxecdq1t2GP2gbu",
+  "tokenProgram": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+  "seat": {
+    "slug": "alt-momentum-x",
+    "symbol": "ALTCMOME-E9",
+    "mint": "9ae4gCdmfLqPGYDgGU7p5jryV1zJyBWXPBwFB3TbPeUa",
+    "supply": 13,
+    "priceUsdc": 81.48
+  }
+}
