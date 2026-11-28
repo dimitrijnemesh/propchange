@@ -11,7 +11,7 @@
 
 <p align="center">
   <a href="https://propchange.vercel.app"><img alt="Live app" src="https://img.shields.io/badge/live-propchange.vercel.app-3b63ff?style=flat-square" /></a>
-  <img alt="Solana" src="https://img.shields.io/badge/Solana-devnet-14F195?style=flat-square&logo=solana&logoColor=white" />
+  <a href="https://explorer.solana.com/address/9ae4gCdmfLqPGYDgGU7p5jryV1zJyBWXPBwFB3TbPeUa?cluster=devnet"><img alt="Solana devnet" src="https://img.shields.io/badge/Solana-devnet%20live-14F195?style=flat-square&logo=solana&logoColor=white" /></a>
   <img alt="Next.js" src="https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs" />
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-7-3178C6?style=flat-square&logo=typescript&logoColor=white" />
   <img alt="Dev3pack" src="https://img.shields.io/badge/Dev3pack-Global%20Hackathon%202026-8b5cf6?style=flat-square" />
@@ -65,7 +65,8 @@ nobody is accountable. PropChange makes the trader accountable: no rules kept, n
   monthly returns, risk flags and the full contract history (kept / breached) per Epoch.
 - **Follower and trader areas.** Active Seats, escrow, refunds and Risk Engine activity for followers;
   earnings, upcoming settlements and contract health for traders.
-- **Also:** demo wallet flow (real Solana wallets arrive with the devnet program), light / dark theme, 13 languages, prices in USD / EUR / UAH.
+- **Live on Solana devnet.** The ALTCMOME-E9 Seat is a real Token-2022 token: connect Phantom, get test USDC, buy a Seat (USDC into escrow and the Seat token to you in one transaction) and simulate a breach (Seat back, USDC back) — every step on-chain with an Explorer link.
+- **Also:** fee calculator, "find your Seat in 3 questions", Simulate breach on every Seat in the dashboard, live-ticking prices, light / dark theme, 13 languages, prices in USD / EUR / UAH.
 
 ## How a Seat works
 
@@ -84,8 +85,35 @@ flowchart LR
 |---|---|
 | Web app — landing, market, analytics, trading screen, follower & trader areas | ✅ Live at [propchange.vercel.app](https://propchange.vercel.app) |
 | Data | Demo data from a deterministic mock layer (`prototype/lib/mock-api.ts`) — no real money |
-| Wallet | Demo wallet only; a real Solana wallet adapter (Phantom) comes with the devnet program |
-| Solana program — Seat mint, USDC escrow, settle / refund | 🛠 Building on devnet during Dev3pack |
+| Solana devnet | ✅ Seat token **ALTCMOME-E9** + test USDC live; buy and refund are real transactions (Phantom via Wallet Standard) |
+| Escrow | A devnet escrow wallet operated by the app server (`/api/devnet`) — an on-chain Anchor escrow program is the next step |
+
+## On Solana devnet
+
+| What | Address |
+|---|---|
+| Seat token **ALTCMOME-E9** (Token-2022, 13 Seats) | [`9ae4gCdmfLqPGYDgGU7p5jryV1zJyBWXPBwFB3TbPeUa`](https://explorer.solana.com/address/9ae4gCdmfLqPGYDgGU7p5jryV1zJyBWXPBwFB3TbPeUa?cluster=devnet) |
+| Test USDC **dUSDC** (Token-2022, 6 decimals) | [`2E8nRAkBfsoHeomhMHKhkbHnPEE4UVxecdq1t2GP2gbu`](https://explorer.solana.com/address/2E8nRAkBfsoHeomhMHKhkbHnPEE4UVxecdq1t2GP2gbu?cluster=devnet) |
+| Escrow | [`FMpGes9KgWbSn1oisHyXawiiGcMvZddx6JbcqNDa4HRL`](https://explorer.solana.com/address/FMpGes9KgWbSn1oisHyXawiiGcMvZddx6JbcqNDa4HRL?cluster=devnet) |
+
+**Try it:** set Phantom to Devnet (Settings → Developer Settings → Testnet Mode), open
+[/seats/alt-momentum-x](https://propchange.vercel.app/seats/alt-momentum-x) and use the **Live on Solana devnet** panel:
+Connect → Get 100 test USDC → Buy 1 Seat → Simulate breach → refund. The escrow pays every network fee, so you
+don't need devnet SOL.
+
+```mermaid
+sequenceDiagram
+  participant U as Phantom (user)
+  participant A as /api/devnet
+  participant S as Solana devnet
+  U->>A: buy (owner)
+  A-->>U: tx: user dUSDC → escrow, escrow Seat → user (escrow co-signs, pays fee)
+  U->>S: sign & send
+  S-->>U: Seat token in wallet
+  U->>A: refund (breach)
+  A-->>U: tx: Seat → escrow, escrow dUSDC → user
+  U->>S: sign & send
+```
 
 ## Repository map
 
@@ -121,6 +149,11 @@ npm run typecheck    # tsc --noEmit
 npm run build        # production build
 ```
 
+Devnet (optional): `node scripts/devnet-setup.mjs` creates the escrow keypair in `~/.config/propchange/` (never
+committed), the test USDC and the Seat token, and writes the public addresses to `lib/devnet-config.json`.
+On Vercel the escrow key comes from the `DEVNET_ESCROW_SECRET` env var. `node scripts/devnet-e2e.mjs [url]`
+runs faucet → buy → refund with a throwaway wallet.
+
 ## Dev3pack Global Hackathon
 
 PropChange is entered in the Dev3pack Global Hackathon (27–29 Nov 2026).
@@ -129,7 +162,11 @@ PropChange is entered in the Dev3pack Global Hackathon (27–29 Nov 2026).
   [`pre-dev3pack`](https://github.com/dimitrijnemesh/propchange/tree/pre-dev3pack) — screenshots in
   [`docs/before-hackathon`](docs/before-hackathon).
 - **Built during:** every commit after the tag —
-  [compare `pre-dev3pack...main`](https://github.com/dimitrijnemesh/propchange/compare/pre-dev3pack...main).
+  [compare `pre-dev3pack...main`](https://github.com/dimitrijnemesh/propchange/compare/pre-dev3pack...main). Highlights:
+  - Solana devnet: Seat token + test USDC (Token-2022 with on-chain metadata), `/api/devnet` (faucet, atomic
+    buy, atomic refund), Phantom via Wallet Standard, Live on devnet panel with Explorer links
+  - Simulate breach on every Seat, fee/refund calculator, Find your Seat in 3 questions, live-ticking prices
+  - Landing rework (BingX/NextVibe-style sections, real iPhone 17 Pro frames, scroll reveal), restyled auth pages
 
 ## Team
 

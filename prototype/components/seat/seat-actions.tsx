@@ -1,15 +1,29 @@
 "use client";
-import { OctagonX, RefreshCw, SlidersHorizontal } from "lucide-react";
+import { OctagonX, RefreshCw, RotateCcw, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useToast } from "@/components/ui/toast";
+import { fmtMoney } from "@/lib/format";
+import { BreachSimulator } from "./breach-simulator";
 
-export function SeatActions({ refunded, slug, name }: { refunded: boolean; slug: string; name: string }) {
+export function SeatActions({ refunded, slug, name, refund = 0, rule = "" }: { refunded: boolean; slug: string; name: string; refund?: number; rule?: string }) {
   const toast = useToast();
   const [confirm, setConfirm] = useState(false);
   const [stopped, setStopped] = useState(false);
+  const [simulated, setSimulated] = useState(false);
+  if (simulated)
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-[var(--up)]/15 px-3 text-[13px] font-semibold text-up">
+          <RotateCcw className="size-4" /> Refunded {fmtMoney(refund, { currency: "USDC" })}
+        </span>
+        <Button size="sm" variant="ghost" onClick={() => setSimulated(false)}>
+          Reset demo
+        </Button>
+      </div>
+    );
   if (refunded)
     return (
       <div className="flex gap-2">
@@ -23,6 +37,7 @@ export function SeatActions({ refunded, slug, name }: { refunded: boolean; slug:
     );
   return (
     <div className="flex flex-wrap gap-2">
+      <BreachSimulator name={name} refund={refund} rule={rule} onDone={() => setSimulated(true)} />
       <Link href="/app/risk" className={buttonVariants({ size: "sm", variant: "ghost" })}>
         <SlidersHorizontal /> Limits
       </Link>

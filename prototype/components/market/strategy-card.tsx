@@ -23,7 +23,7 @@ export function StrategyCard({ s, className, muted, period }: { s: StrategyWithS
   return (
     <article
       className={cn(
-        "relative flex flex-col rounded-[22px] border border-border bg-surface p-5 transition-colors hover:border-border-strong",
+        "lift relative flex flex-col rounded-[28px] bg-surface p-6 ring-1 ring-border",
         muted && "opacity-75",
         className,
       )}
@@ -33,7 +33,7 @@ export function StrategyCard({ s, className, muted, period }: { s: StrategyWithS
         <Avatar name={s.traderHandle} size={44} className="shrink-0" />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1">
-            <h3 className="truncate text-[16px] font-semibold leading-6">
+            <h3 className="truncate text-[17px] font-bold leading-6 tracking-[-0.02em]">
               <Link prefetch={false} href={`/strategies/${s.slug}`} className="after:absolute after:inset-0 hover:text-primary-text">
                 {s.name}
               </Link>
@@ -73,27 +73,27 @@ export function StrategyCard({ s, className, muted, period }: { s: StrategyWithS
       <div className="mt-4 flex items-end justify-between gap-3">
         <div className="shrink-0">
           <div className="text-[12.5px] text-tertiary">Return {retLabel}</div>
-          <div className={cn("tnum mt-1 text-[30px] font-semibold leading-none tracking-tight", up ? "text-up" : "text-down")}>{fmtPct(ret, { sign: true })}</div>
+          <div className={cn("tnum mt-1 text-[34px] leading-none font-semibold tracking-[-0.025em]", up ? "text-up" : "text-down")}>{fmtPct(ret, { sign: true })}</div>
         </div>
-        <AreaSpark data={s.spark} up={up} id={`sc-${s.id}`} strokeWidth={1.8} className="h-14 w-full max-w-[150px]" />
+        <AreaSpark data={s.spark} up={up} id={`sc-${s.id}`} strokeWidth={1.8} className="h-16 w-full max-w-[170px]" />
       </div>
 
       {/* key numbers */}
       <dl className="mt-5 grid grid-cols-3 gap-2 border-t border-border pt-4 text-[12px]">
         <div>
           <dt className="text-tertiary">Max drawdown</dt>
-          <dd className="tnum mt-1 text-[14px] font-semibold">{fmtPct(s.metrics.maxDrawdown)}</dd>
+          <dd className="tnum mt-1 text-[16px] font-semibold">{fmtPct(s.metrics.maxDrawdown)}</dd>
         </div>
         <div className="text-center">
           <dt className="text-tertiary">Kept</dt>
-          <dd className="tnum mt-1 text-[14px] font-semibold">
+          <dd className="tnum mt-1 text-[16px] font-semibold">
             {s.compliance.kept}/{s.compliance.settled}
           </dd>
         </div>
         <div className="text-right">
           <dt className="text-tertiary">Seat / 30d</dt>
           <dd className="mt-1">
-            <Price value={priceFrom(s)} className="font-mono text-[14px] font-semibold" />
+            <Price value={priceFrom(s)} className="text-[16px] font-semibold" />
           </dd>
         </div>
       </dl>

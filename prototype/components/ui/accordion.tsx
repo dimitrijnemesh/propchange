@@ -4,7 +4,7 @@ import { ChevronDown } from "lucide-react";
 
 export function Accordion({ items }: { items: { q: string; a: React.ReactNode }[] }) {
   return (
-    <A.Root type="single" collapsible className="divide-y divide-border rounded-lg border border-border bg-surface">
+    <A.Root type="single" collapsible className="divide-y divide-border overflow-hidden rounded-[22px] border border-border bg-surface">
       {items.map((it, i) => (
         <A.Item key={i} value={`i${i}`}>
           <A.Header>

@@ -1,128 +1,108 @@
 "use client";
-import { ArrowUpRight, Clock, Flame, TrendingUp } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 import { Avatar } from "@/components/common";
-import { AreaSpark as Area, ChangePill } from "@/components/common/area-spark";
-import { Price } from "@/components/layout/currency";
+import { AreaSpark, ChangePill } from "@/components/common/area-spark";
+import { LivePrice } from "@/components/common/live-price";
 import type { SeatRow } from "@/lib/mock-api";
-import { cn } from "@/lib/utils";
-import { Eyebrow } from "./landing-sections";
-
-type ColKey = "trending" | "new" | "gainers";
 
 /**
- * BingX-style market block, kept compact: three trend cards (swipeable on phones) and a ranking of
- * three lists — side by side on desktop, one list with tabs on phones/tablets.
+ * Big chart card (BingX "Stocks / TradFi" style): label + avatar, name, a light-weight price, and the area
+ * chart in its own row below — it never runs under the price.
  */
-export function SeatTrends({ trends, trending, fresh, gainers }: { trends: SeatRow[]; trending: SeatRow[]; fresh: SeatRow[]; gainers: SeatRow[] }) {
-  const [tab, setTab] = useState<ColKey>("trending");
-  const cols = [
-    { key: "trending" as const, title: "Trending", icon: Flame, iconCls: "bg-[#ff5a5f]/15 text-[#ff5a5f]", rows: trending, href: "/seats", tag: (r: SeatRow) => (r.seatsTaken >= r.seatsTotal ? "Full" : "Popular") },
-    { key: "new" as const, title: "New listing", icon: Clock, iconCls: "bg-primary/15 text-primary-text", rows: fresh, href: "/strategies?state=rookie", tag: () => "Rookie" },
-    { key: "gainers" as const, title: "Top gainers", icon: TrendingUp, iconCls: "bg-[var(--up)]/15 text-up", rows: gainers, href: "/seats", tag: (r: SeatRow) => `${r.seatsTraded30d} traded` },
-  ];
+function ChartCard({ label, r, delay }: { label: string; r: SeatRow; delay: number }) {
+  const up = r.seatPrice7dChange >= 0;
   return (
-    <section aria-label="Seat market" className="relative isolate overflow-hidden py-14 md:py-20">
-      <div className="container-market">
-      <div className="mx-auto max-w-[1140px]">
-      <Eyebrow live>Live Seat market</Eyebrow>
-      <h2 className="mt-4 text-center text-[28px] font-semibold tracking-[-0.03em] md:text-[40px]">Most wanted Seats</h2>
-      <p className="mx-auto mt-4 max-w-[520px] text-center text-[15px] text-secondary md:mt-5 md:text-[16px]">Limited Seats behind verified traders. Prices move with demand.</p>
-
-      {/* trend cards: swipe row on phones, three columns from md */}
-      <div className="swipe-row mt-8 sm:grid sm:grid-cols-3 sm:gap-4 md:mt-10 md:gap-6">
-        {trends.map((r) => {
-          const up = r.seatPrice7dChange >= 0;
-          return (
-            <Link
-              key={r.id}
-              prefetch={false}
-              href={`/strategies/${r.slug}`}
-              className="glow-border relative flex h-[184px] flex-col overflow-hidden rounded-[24px] bg-surface p-5 transition-transform duration-300 hover:-translate-y-1 md:h-[200px]"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <span className="min-w-0 truncate text-[15px] font-semibold">{r.name}</span>
-                <Avatar name={r.traderHandle} size={30} className="shrink-0" />
-              </div>
-              <Price value={r.price} className="mt-3 block font-mono text-[26px] font-medium leading-none tracking-tight" />
-              <ChangePill v={r.seatPrice7dChange} className="mt-2 self-start" />
-              <Area data={r.priceHistory} up={up} id={`tc-${r.id}`} strokeWidth={2} className="pointer-events-none absolute inset-x-0 bottom-0 h-[38%] w-full" />
-            </Link>
-          );
-        })}
+    <Link
+      data-reveal={String(delay)}
+      prefetch={false}
+      href={`/strategies/${r.slug}`}
+      className="lift flex h-full min-h-[260px] flex-col rounded-[28px] bg-surface p-6 ring-1 ring-border md:p-7"
+    >
+      <div className="flex items-start justify-between gap-3">
+        <span className="text-[19px] font-bold tracking-[-0.02em]">{label}</span>
+        <Avatar name={r.traderHandle} size={40} className="shrink-0" />
       </div>
-
-      {/* ranking: one list with tabs below lg */}
-      <div className="mt-6 rounded-[24px] bg-surface p-5 ring-1 ring-border lg:hidden">
-        <div className="flex gap-1 rounded-full bg-bg-muted p-1" role="tablist" aria-label="Ranking">
-          {cols.map((c) => (
-            <button
-              key={c.key}
-              type="button"
-              role="tab"
-              aria-selected={tab === c.key}
-              onClick={() => setTab(c.key)}
-              className={cn("h-8 flex-1 rounded-full text-[13px] font-semibold transition-colors", tab === c.key ? "bg-surface text-text shadow-sm" : "text-tertiary")}
-            >
-              {c.title}
-            </button>
-          ))}
-        </div>
-        {cols
-          .filter((c) => c.key === tab)
-          .map((c) => (
-            <RankList key={c.key} c={c} />
-          ))}
+      <span className="mt-1 truncate text-[15px] text-tertiary">{r.name}</span>
+      <div className="mt-1 flex items-baseline gap-2.5">
+        <LivePrice value={r.price} className="text-[34px] leading-none font-semibold tracking-[-0.025em]" />
+        <ChangePill v={r.seatPrice7dChange} className="text-[12px]" />
       </div>
-      {/* ranking: three lists side by side on desktop */}
-      <div className="mt-6 hidden gap-6 lg:grid lg:grid-cols-3">
-        {cols.map((c) => (
-          <div key={c.key} className="flex flex-col rounded-[24px] bg-surface p-5 ring-1 ring-border">
-            <h3 className="flex items-center gap-2.5 text-[17px] font-semibold">
-              <span className={cn("inline-flex size-8 items-center justify-center rounded-full", c.iconCls)}>
-                <c.icon className="size-4" strokeWidth={2} />
-              </span>
-              {c.title}
-            </h3>
-            <RankList c={c} />
-          </div>
-        ))}
+      <div className="mt-5 min-h-[72px] flex-1">
+        <AreaSpark data={r.priceHistory} up={up} id={`cc-${r.id}`} strokeWidth={2} className="h-full w-full" />
       </div>
-      </div>
-      </div>
-    </section>
+    </Link>
   );
 }
 
-function RankList({ c }: { c: { key: ColKey; rows: SeatRow[]; href: string; tag: (r: SeatRow) => string } }) {
+/**
+ * BingX-style market block, 1:1 layout: big headline on the left, two stacked chart cards in the middle and a
+ * "Popular" list on the right (avatar, name + ticker, sparkline, price, solid change pill).
+ */
+export function SeatTrends({ trends, trending, gainers }: { trends: SeatRow[]; trending: SeatRow[]; fresh: SeatRow[]; gainers: SeatRow[] }) {
+  const hot = trends[0];
+  const top = gainers[0] ?? trends[1];
   return (
-    <>
-      <ol className="mt-2 flex-1">
-        {c.rows.map((r) => (
-          <li key={r.id} className="border-b border-border last:border-b-0">
-            <Link prefetch={false} href={`/strategies/${r.slug}`} className="-mx-2 flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-bg-subtle">
-              <Avatar name={r.traderHandle} size={32} className="shrink-0" />
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-[14px] font-semibold">{r.name}</span>
-                <span className="mt-0.5 inline-block rounded bg-bg-muted px-1.5 py-px text-[10.5px] text-secondary">{c.tag(r)}</span>
-              </span>
-              <Area data={r.priceHistory} up={r.seatPrice7dChange >= 0} id={`rk-${c.key}-${r.id}`} className="hidden h-7 w-14 shrink-0 sm:block" />
-              <span className="flex shrink-0 flex-col items-end gap-1">
-                <Price value={r.price} className="font-mono text-[14px]" />
-                <ChangePill v={r.seatPrice7dChange} className="text-[11.5px]" />
-              </span>
+    <section aria-label="Seat market" className="py-16 md:py-24">
+      <div className="container-market">
+        <div className="mx-auto grid max-w-[1140px] gap-5 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)_minmax(0,1.25fr)] lg:gap-5">
+          {/* headline */}
+          <div className="flex flex-col lg:pr-4">
+            <h2 data-reveal className="text-[44px] font-semibold leading-[0.98] tracking-[-0.03em] md:text-[68px]">
+              Most
+              <br />
+              wanted
+              <br />
+              Seats
+            </h2>
+            <p data-reveal="1" className="mt-6 max-w-[360px] text-[17px] leading-7 text-secondary">
+              Limited Seats behind verified traders. Prices move with demand — fewer Seats left, higher the price.
+            </p>
+            <Link
+              data-reveal="2"
+              href="/seats"
+              className="mt-8 inline-flex items-center gap-1.5 self-start border-b border-text pb-1 text-[16px] font-medium transition-colors hover:border-primary hover:text-primary-text lg:mt-auto"
+            >
+              See details <ArrowUpRight className="size-4" />
             </Link>
-          </li>
-        ))}
-      </ol>
-      <Link
-        prefetch={false}
-        href={c.href}
-        className="mt-3 inline-flex items-center gap-1.5 self-start border-b border-text pb-0.5 text-[14px] font-medium transition-colors hover:border-primary hover:text-primary-text"
-      >
-        See all <ArrowUpRight className="size-4" />
-      </Link>
-    </>
+          </div>
+
+          {/* two stacked chart cards */}
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1 lg:grid-rows-2 lg:gap-5">
+            {hot ? <ChartCard label="Hot Seat" r={hot} delay={1} /> : null}
+            {top ? <ChartCard label="Top gainer" r={top} delay={2} /> : null}
+          </div>
+
+          {/* popular list */}
+          <div data-reveal="3" className="lift flex flex-col rounded-[28px] bg-surface p-6 ring-1 ring-border md:p-8">
+            <h3 className="text-[22px] font-bold tracking-[-0.02em]">Popular</h3>
+            <ol className="mt-3 flex-1">
+              {trending.slice(0, 6).map((r) => (
+                <li key={r.id} className="border-b border-border last:border-b-0">
+                  <Link prefetch={false} href={`/strategies/${r.slug}`} className="flex items-center gap-3 py-3.5 transition-opacity hover:opacity-80">
+                    <Avatar name={r.traderHandle} size={38} className="shrink-0" />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-[16px] font-semibold">{r.name}</span>
+                      <span className="block truncate text-[12px] uppercase tracking-wide text-tertiary">{r.symbol}</span>
+                    </span>
+                    <AreaSpark data={r.priceHistory} up={r.seatPrice7dChange >= 0} id={`pp-${r.id}`} className="hidden h-9 w-20 shrink-0 sm:block" />
+                    <span className="flex w-[88px] shrink-0 flex-col items-end gap-1">
+                      <LivePrice value={r.price} className="text-[17px] font-semibold tracking-[-0.025em]" />
+                      <ChangePill v={r.seatPrice7dChange} className="text-[12px]" />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ol>
+            <Link
+              href="/seats"
+              className="mt-5 inline-flex items-center gap-1.5 self-start border-b border-text pb-1 text-[16px] font-medium transition-colors hover:border-primary hover:text-primary-text"
+            >
+              See all Seats <ArrowUpRight className="size-4" />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

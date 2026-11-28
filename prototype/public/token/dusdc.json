@@ -1,0 +1,7 @@
+{
+  "name": "PropChange Test USDC",
+  "symbol": "dUSDC",
+  "description": "Test USDC for the PropChange devnet demo. No real value.",
+  "image": "https://propchange.vercel.app/brand/hero/coin.png",
+  "external_url": "https://propchange.vercel.app"
+}

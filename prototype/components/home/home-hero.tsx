@@ -38,10 +38,15 @@ export function HomeHero({ initialLoggedIn }: { initialLoggedIn: boolean }) {
     const el = ref.current;
     if (!el) return;
     const fit = () => {
-      const top = el.getBoundingClientRect().top + window.scrollY;
+      // header + topic bar are pinned, so their heights give both the hero's natural top and where it sticks
+      // while the next sections slide over it
+      const header = document.querySelector<HTMLElement>("header");
+      const above = el.previousElementSibling as HTMLElement | null;
+      const top = (header?.offsetHeight ?? 0) + (above?.offsetHeight ?? 0);
       const bar = document.querySelector<HTMLElement>(".status-bar");
       const barH = bar && getComputedStyle(bar).display !== "none" ? bar.offsetHeight : 0;
       el.style.setProperty("--home-hero-offset", `${top + barH}px`);
+      el.style.setProperty("--home-hero-top", `${top}px`);
     };
     fit();
     window.addEventListener("resize", fit);
@@ -49,7 +54,7 @@ export function HomeHero({ initialLoggedIn }: { initialLoggedIn: boolean }) {
   }, []);
 
   return (
-    <section ref={ref} className="home-hero relative flex items-center overflow-hidden border-b border-border">
+    <section ref={ref} className="home-hero flex items-center overflow-hidden">
       {/* phones/tablets: flat faded grid; desktop keeps only the perspective grid at the bottom of the stage */}
       <div aria-hidden className="hero-bg-grid pointer-events-none absolute inset-0 lg:hidden" />
       <HeroStage />
@@ -71,10 +76,10 @@ export function HomeHero({ initialLoggedIn }: { initialLoggedIn: boolean }) {
             <Image src="/brand/hero/coin.png" alt="" width={120} height={120} className="hero-item absolute left-[-26%] top-[38%] h-auto w-[20%]" style={{ animationDelay: "-1.2s", animationDuration: "5.2s" }} />
             <Image src="/brand/hero/shield.png" alt="" width={120} height={120} className="hero-item absolute right-[10%] top-[72%] h-auto w-[20%]" style={{ animationDelay: "-3s", animationDuration: "6.4s" }} />
           </div>
-          <h1 className="relative text-[36px] font-semibold min-[400px]:text-[40px] leading-[1.05] tracking-[-0.035em] md:text-[60px]">
+          <h1 className="relative text-[36px] font-semibold min-[400px]:text-[40px] leading-[1.02] tracking-[-0.03em] md:text-[64px]">
             Take a Seat.
             <br />
-            <span className="text-primary-text">Copy. Earn.</span>
+            <span className="brand-text-gradient">Copy. Earn.</span>
           </h1>
           <p className="relative mt-5 text-[17px] leading-7 text-secondary">Copy verified traders in your own account. Rules broken? Your fee comes back.</p>
 
