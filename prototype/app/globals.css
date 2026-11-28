@@ -242,7 +242,8 @@ body {
   background: var(--bg);
   color: var(--text);
   font-size: 14px;
-  line-height: 20px;
+  /* unitless, so large text that wraps never overlaps (14px → 20px, 40px → 57px) */
+  line-height: 1.43;
   -webkit-font-smoothing: antialiased;
 }
 /* In the base layer so Tailwind border-color utilities (e.g. border-white/30) can override it. */
