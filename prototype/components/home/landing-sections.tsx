@@ -36,7 +36,7 @@ export function FactsStrip() {
                 <Image src={f.img} alt="" fill sizes="80px" className="hero-item object-contain drop-shadow-[0_14px_20px_rgba(10,20,90,0.45)]" style={{ animationDelay: `${-i * 1.6}s` }} />
               </div>
               <div>
-                <div className="text-[28px] font-medium tracking-[-0.03em] md:text-[40px]">{f.big}</div>
+                <div className="text-balance text-[28px] font-medium leading-[1.1] tracking-[-0.03em] md:text-[34px] lg:text-[40px]">{f.big}</div>
                 <div className="mt-2.5 text-[14px] text-white/75">{f.label}</div>
               </div>
             </li>
@@ -250,7 +250,7 @@ export function InvestorsSection() {
               >
                 <div className="transition-transform duration-300 group-hover:-translate-y-1.5">
                   <div className="text-[13px] font-semibold uppercase tracking-[0.12em] text-tertiary">{p.k}</div>
-                  <div className="mt-3 text-[34px] font-bold leading-none tracking-[-0.04em] md:text-[40px]">{p.v}</div>
+                  <div className="mt-3 text-[34px] font-bold leading-[1.05] tracking-[-0.04em] md:text-[40px]">{p.v}</div>
                   <div className="mt-2 text-[14.5px] leading-6 text-secondary">{p.sub}</div>
                 </div>
               </div>
